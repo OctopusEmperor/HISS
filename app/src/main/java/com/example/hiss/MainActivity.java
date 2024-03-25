@@ -1,115 +1,69 @@
 package com.example.hiss;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.credentials.Credential;
-import androidx.credentials.CredentialManager;
-import androidx.credentials.CredentialManagerCallback;
-import androidx.credentials.CustomCredential;
-import androidx.credentials.GetCredentialRequest;
-import androidx.credentials.GetCredentialResponse;
-import androidx.credentials.PasswordCredential;
-import androidx.credentials.PublicKeyCredential;
-import androidx.credentials.exceptions.GetCredentialException;
-
 import android.os.Bundle;
-import android.os.CancellationSignal;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CalendarView;
 
-import com.google.android.gms.auth.GoogleAuthException;
-import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
-import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential;
-import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException;
-import com.google.firebase.auth.FirebaseAuth;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.credentials.CredentialManager;
+import androidx.credentials.GetCredentialRequest;
 
-import java.util.concurrent.Executors;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 
-public class MainActivity extends AppCompatActivity implements CalendarView.OnDateChangeListener, View.OnClickListener {
+import java.util.Collections;
 
-    androidx.credentials.CredentialManager credMan;
-    CancellationSignal cs;
 
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private CredentialManager credMan;
+    private ActivityResultLauncher<GetCredentialRequest> requestCredentialsLauncher;
     private static final String TAG = "MySignInActivity";
-
-    private FirebaseAuth firebaseAuth;
-    CalendarView calendar;
     Button signInButton;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        credMan = CredentialManager.create(this);
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        calendar.setOnDateChangeListener(this);
         signInButton = (Button) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
 
+        credMan = CredentialManager.create(this);
+
+        requestCredentialsLauncher = registerForActivityResult(
+                new ActivityResultContracts.RequestPermission(),
+                credential -> {
+                    if (credential != null) {
+                        handleRetrievedCredential(credential);
+                    }
+                });
+
+
     }
 
-    @Override
-    public void onSelectedDayChange(@NonNull CalendarView view, int year, int month, int dayOfMonth) {
-
-    }
 
     @Override
     public void onClick(View v) {
         if (signInButton==v)
         {
-            cs = new CancellationSignal();
-            GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
-                    .setFilterByAuthorizedAccounts(true)
-                    .setServerClientId("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
-                    .build();
-            GetCredentialRequest request = new GetCredentialRequest.Builder()
-                    .addCredentialOption(googleIdOption)
-                    .build();
-            credMan.getCredentialAsync(
-                    this, request,
-                    null,
-                    Executors.newSingleThreadExecutor(),
-                    new CredentialManagerCallback<GetCredentialResponse, GetCredentialException>() {
-                        @Override
-                        public void onResult(GetCredentialResponse result) {
-                            handleSignIn(result);
-                        }
-
-                        @Override
-                        public void onError(GetCredentialException e) {
-
-                        }
-                    });
+            requestCredentials();
         }
     }
-    public void handleSignIn (GetCredentialResponse result) {
-        Credential credential = result.getCredential();
 
-        if (credential instanceof PublicKeyCredential) {
-            String responseJson = ((PublicKeyCredential) credential).getAuthenticationResponseJson();
-        }
-        else if (credential instanceof PasswordCredential) {
-            String username = ((PasswordCredential) credential).getId();
-            String password = ((PasswordCredential) credential).getPassword();
-        }
-        else if (credential instanceof CustomCredential) {
-            if (GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL.equals(credential.getType())) {
-                try {
-                    GoogleIdTokenCredential googleIdTokenCredential = GoogleIdTokenCredential.createFrom(((CustomCredential) credential).getData());
-                } catch (GoogleIdTokenParsingException e) {
-                    Log.e(TAG, "Received an invalid Google ID token response", e);
-                }
-            }
-            else {
-                Log.e(TAG, "Unexpected type of credential");
-            }
-        }
-        else {
-            Log.e(TAG, "Unexpected type of credential");
-        }
+    private void requestCredentials() {
+        // Build GetCredentialRequest to filter for Google Sign-In credentials
+        GetCredentialRequest request = new GetCredentialRequest.Builder()
+                .setOrigin(Collections.singletonList(GoogleSignInAccount.class.getName()))
+                .setFilterByProperties(Collections.singletonList(new PropertyFilter.Builder()
+                        .setId("id") // Property ID used by Google Sign-In credentials
+                        .setValue(getString(R.string.default_web_client_id)) // Replace with your server client ID
+                        .build()))
+                .build();
+
+        // Request credentials using ActivityResultLauncher
+        requestCredentialsLauncher.launch(request);
     }
 }
