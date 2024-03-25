@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "353278388473",
+    "project_id": "hiss---android-bagrut-project",
+    "storage_bucket": "hiss---android-bagrut-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:353278388473:android:46a9a7863045e2147cda28",
+        "android_client_info": {
+          "package_name": "com.example.hiss"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCPjiyAVNK3qY3PnXGplu_4ssRlfSqzBsM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
