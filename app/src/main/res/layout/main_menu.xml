@@ -6,7 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainMenuActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/signinbackground">
 
     <TextView
         android:layout_width="wrap_content"
@@ -15,6 +16,11 @@
         android:layout_gravity="center"
         android:textSize="35sp"
         android:id="@+id/welcometv"/>
+
+    <CalendarView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
 
     <Button
         android:layout_width="wrap_content"
