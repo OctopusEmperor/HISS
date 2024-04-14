@@ -5,13 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/signinbackground">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sign in with google"
+        android:textSize="35sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="200sp"
+        android:textColor="#238CC0"/>
 
     <ImageButton
         android:layout_width="80sp"
         android:layout_height="80sp"
         android:layout_gravity="center"
-        android:layout_marginTop="300sp"
+        android:layout_marginTop="100sp"
         android:background="@drawable/circulargooglelogo"
         android:id="@+id/signInButton"/>
 

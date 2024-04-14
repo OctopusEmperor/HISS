@@ -38,7 +38,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         signInButton = (ImageButton) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
-
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
+        if (account!=null){
+            navigateToMainMenu();
+        }
     }
 
     @Override
@@ -62,14 +65,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             try {
                 signInAccountTask.getResult(ApiException.class);
-                navigateToSecondActivity();
+                navigateToMainMenu();
             } catch (ApiException e) {
                 Toast.makeText(getApplicationContext(), "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         }
     }
 
-    void navigateToSecondActivity(){
+    void navigateToMainMenu(){
         finish();
         Intent intent1 = new Intent(MainActivity.this, MainMenuActivity.class);
         startActivity(intent1);
