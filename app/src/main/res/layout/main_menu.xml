@@ -5,28 +5,50 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainMenuActivity"
+    android:background="@drawable/defaultbackground"
     android:orientation="vertical"
-    android:background="@drawable/signinbackground">
+    tools:context=".MainMenuActivity">
 
     <TextView
+        android:id="@+id/welcometv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="name"
         android:layout_gravity="center"
+        android:text="name"
         android:textSize="35sp"
-        android:id="@+id/welcometv"/>
+        android:layout_weight="1"/>
 
     <CalendarView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:dateTextAppearance="@style/CalenderViewDateCustomText"
+        android:focusedMonthDateColor="@color/custom_text_color"
+        android:theme="@style/CardView.Dark"
+        android:weekDayTextAppearance="@style/CalenderViewDateCustomText" />
 
-    <Button
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="20sp"
+        android:orientation="horizontal">
+
+        <TextClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:format24Hour="hh:mm" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/signOutBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="40sp"
+        android:layout_marginTop="200sp"
+        android:backgroundTint="#e6ccb2"
         android:text="Sign out"
-        android:layout_gravity="center"
-        android:id="@+id/signOutBtn"/>
+        android:textColor="#78685c"
+        android:layout_gravity="bottom|right"
+        android:layout_marginRight="10sp" />
 
 </LinearLayout>
+
