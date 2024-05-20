@@ -123,7 +123,7 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/calendarRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="300sp" />
 
 
 
@@ -145,7 +145,7 @@
         android:layout_height="40sp"
         android:orientation="horizontal"
         android:layout_gravity="bottom|right"
-        android:layout_marginTop="200sp">
+        android:layout_marginTop="260sp">
 
         <TextView
             android:id="@+id/welcometv"
