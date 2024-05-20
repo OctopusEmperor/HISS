@@ -1,17 +1,13 @@
 package com.example.hiss;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.credentials.CredentialManager;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -20,11 +16,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GoogleSignInOptions gso;
     ImageButton signInButton;
     private Intent intent;
+    CredentialManager credentialManager;
+    String TAG;
 
 
     @Override
@@ -39,10 +32,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+        gso = new GoogleSignInOptions.Builder()
                 .requestEmail()
                 .build();
         gsc = GoogleSignIn.getClient(this, gso);
+
 
         signInButton = (ImageButton) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
