@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.credentials.CredentialManager;
+import androidx.credentials.GetCredentialRequest;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -23,8 +24,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GoogleSignInOptions gso;
     ImageButton signInButton;
     private Intent intent;
-    CredentialManager credentialManager;
     String TAG;
+    private boolean credentialManagerStatus = false;
+    CredentialManager credentialManager;
+    GetCredentialRequest credentialRequest;
 
 
     @Override
@@ -45,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             navigateToMainMenu();
         }
     }
+
 
     @Override
     public void onClick(View v) {
@@ -79,5 +83,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Intent intent1 = new Intent(MainActivity.this, MainMenuActivity.class);
         startActivity(intent1);
     }
-
 }
