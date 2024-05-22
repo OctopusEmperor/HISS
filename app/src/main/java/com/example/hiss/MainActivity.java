@@ -17,7 +17,6 @@ import androidx.credentials.CredentialManagerCallback;
 import androidx.credentials.CustomCredential;
 import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
-import androidx.credentials.PrepareGetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
@@ -111,24 +110,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d("/////", "Preparing credentials with Google was cancelled.");
             Toast.makeText(this, "Cancelled.", Toast.LENGTH_SHORT).show();
         });
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            credentialManager.prepareGetCredentialAsync(
-                    request,
-                    cancellationSignal,
-                    Executors.newSingleThreadExecutor(),
-                    new CredentialManagerCallback<PrepareGetCredentialResponse, GetCredentialException>() {
-                        @Override
-                        public void onResult(@NonNull PrepareGetCredentialResponse prepareGetCredentialResponse) {
-//                            handleSignIn(prepareGetCredentialResponse);
-                        }
-
-                        @Override
-                        public void onError(@NonNull GetCredentialException e) {
-                            handleFailure(e);
-                        }
-                    }
-            );
-        }
     }
 
     public void handleSuccess(GetCredentialResponse result){
