@@ -19,8 +19,6 @@ import androidx.credentials.GetCredentialRequest;
 import androidx.credentials.GetCredentialResponse;
 import androidx.credentials.exceptions.GetCredentialException;
 
-import com.google.android.gms.auth.api.identity.BeginSignInRequest;
-import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -98,8 +96,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         CancellationSignal cancellationSignal = new CancellationSignal();
         cancellationSignal.setOnCancelListener(() -> {
-            credentialManagerStatus = false;
-
             Log.d("/////", "Preparing credentials with Google was cancelled.");
             Toast.makeText(this, "Cancelled.", Toast.LENGTH_SHORT).show();
         });
