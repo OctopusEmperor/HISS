@@ -22,8 +22,6 @@ import androidx.credentials.exceptions.GetCredentialException;
 
 import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.auth.api.identity.SignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
@@ -45,8 +43,6 @@ import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private GoogleSignInClient gsc;
-    private GoogleSignInOptions gso;
     ImageButton signInButton;
     private Intent intent;
     String TAG;
@@ -67,61 +63,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        gso = new GoogleSignInOptions.Builder()
-                .requestEmail()
-                .build();
-//        gsc = GoogleSignIn.getClient(this, gso);
-
-//        credentialManager = CredentialManager.create(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-
-//        String rawNonce = UUID.randomUUID().toString();
-//        byte[] bytes = rawNonce.getBytes();
-//        MessageDigest md;
-//        try {
-//            md = MessageDigest.getInstance("SHA-256");
-//        } catch (NoSuchAlgorithmException e) {
-//            throw new RuntimeException(e);
-//        }
-//        byte[] digest = md.digest(bytes);
-
-//        GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
-//                .setFilterByAuthorizedAccounts(true)
-//                .setServerClientId("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
-//                .setAutoSelectEnabled(true)
-//                .setNonce(generateNonce())
-//                .build();
-//
-//        request = new GetCredentialRequest.Builder()
-//                .addCredentialOption(googleIdOption)
-//                .build();
-
-//        oneTapClient = Identity.getSignInClient(this);
-
-
-//        signInRequest = new BeginSignInRequest.Builder()
-//                .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-//                                .setSupported(true)
-//                                .setServerClientId("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
-//                                .setFilterByAuthorizedAccounts(false)
-//                                .build())
-//                .setAutoSelectEnabled(true)
-//
-//                .build();
-//        GetSignInWithGoogleOption signInWithGoogleOption = new GetSignInWithGoogleOption.Builder("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
-//                .build();
 
         initCredentialManager();
 
-
-
         signInButton = (ImageButton) findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
-
-//        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-//        if (account!=null){
-//            navigateToMainMenu();
-//        }
     }
 
     @Override
@@ -134,8 +81,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private static String generateNonce() {
-//        byte[] bytes = new byte[32];
-//        new java.security.SecureRandom().nextBytes(bytes);
         String rawNonce = UUID.randomUUID().toString();
         byte[] bytes = rawNonce.getBytes();
         MessageDigest md;
@@ -149,14 +94,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initCredentialManager(){
-
         credentialManager = CredentialManager.create(getApplicationContext());
 
-//        GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
-//                .setFilterByAuthorizedAccounts(false)
-//                .setServerClientId("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
-//                .setNonce(generateNonce())
-//                .build();
         GetSignInWithGoogleOption signInWithGoogleOption = new GetSignInWithGoogleOption.Builder("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
                 .setNonce(generateNonce())
                 .build();
@@ -237,7 +176,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void createCredential() {
         credentialManagerStatus = false;
         Log.d("/////", "Preparing credentials with Google");
-
     }
 
 
@@ -252,13 +190,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     void signIn(){
         credentialManagerStatus = true;
-
-//        GetSignInWithGoogleOption signInWithGoogleOption = new GetSignInWithGoogleOption.Builder("353278388473-0feqddjdm87hc4u20g56ns3b97p89g05.apps.googleusercontent.com")
-//                .setNonce(generateNonce())
-//                .build();
-//        request = new GetCredentialRequest.Builder()
-//                .addCredentialOption(signInWithGoogleOption)
-//                .build();
 
         CancellationSignal cancellationSignal = new CancellationSignal();
         cancellationSignal.setOnCancelListener(() -> {

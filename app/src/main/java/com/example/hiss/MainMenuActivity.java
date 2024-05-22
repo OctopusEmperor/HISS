@@ -6,8 +6,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.credentials.CredentialManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,8 +16,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -33,6 +33,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
     private LocalDate selectedDate;
+    FirebaseAuth mAuth;
+    CredentialManager credentialManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +56,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             welcometv.setText("Welcome "+name);
         }
 
+        mAuth = FirebaseAuth.getInstance();
+
         initWidgets();
         selectedDate = LocalDate.now();
         setMonthView();
@@ -61,17 +65,14 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
-        signOut();
+        if (v == signOutButton){
+            signOut();
+        }
     }
 
     void signOut(){
-        gsc.signOut().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                finish();
-                startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
-            }
-        });
+        mAuth.signOut();
+        startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
     }
 
     private void initWidgets()
