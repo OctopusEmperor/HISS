@@ -148,7 +148,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void createCredential() {
-        credentialManagerStatus = false;
         Log.d("/////", "Preparing credentials with Google");
     }
 
@@ -163,11 +162,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     void signIn(){
-        credentialManagerStatus = true;
 
         CancellationSignal cancellationSignal = new CancellationSignal();
         cancellationSignal.setOnCancelListener(() -> {
-            credentialManagerStatus = false;
 
             Log.d("/////", "Preparing credentials with Google was cancelled.");
             Toast.makeText(this, "Cancelled.", Toast.LENGTH_SHORT).show();
