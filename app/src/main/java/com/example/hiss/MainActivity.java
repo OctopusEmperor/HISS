@@ -43,16 +43,9 @@ import java.util.logging.Logger;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     ImageButton signInButton;
-    private Intent intent;
     String TAG;
     CredentialManager credentialManager;
     GetCredentialRequest request;
-    private SignInClient oneTapClient;
-
-    private BeginSignInRequest signInRequest;
-
-    private static final int REQ_ONE_TAP = 100;
-    private boolean credentialManagerStatus = true;
     String googleIdToken;
     private FirebaseAuth mAuth;
 
