@@ -24,10 +24,11 @@
             android:layout_weight="1"
             android:text="@string/back"
             android:textColor="@color/gray"
-            android:background="@null"
+            android:backgroundTint="@color/coffee"
             android:textStyle="bold"
             android:onClick="previousMonthAction"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:layout_marginRight="10sp"/>
 
         <TextView
             android:id="@+id/monthYearTV"
@@ -45,10 +46,11 @@
             android:layout_weight="1"
             android:text="@string/forward"
             android:textColor="@color/gray"
-            android:background="@null"
+            android:backgroundTint="@color/coffee"
             android:textStyle="bold"
             android:onClick="nextMonthAction"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:layout_marginLeft="10sp"/>
     </LinearLayout>
 
     <LinearLayout
