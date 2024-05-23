@@ -8,15 +8,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.credentials.CredentialManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
@@ -27,14 +23,11 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
     TextView welcometv;
     Button signOutButton;
-    private GoogleSignInClient gsc;
-    private GoogleSignInOptions gso;
 
     private TextView monthYearText;
     private RecyclerView calendarRecyclerView;
     private LocalDate selectedDate;
     FirebaseAuth mAuth;
-    CredentialManager credentialManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,18 +38,12 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         signOutButton = (Button) findViewById(R.id.signOutBtn);
         signOutButton.setOnClickListener(this);
 
-        gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        gsc = GoogleSignIn.getClient(this, gso);
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(this);
-        if (account!=null)
-        {
-            String name = account.getDisplayName();
-            welcometv.setText("Welcome "+name);
-        }
-
         mAuth = FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser= mAuth.getCurrentUser();
+        if(firebaseUser!=null)
+        {
+            welcometv.setText("Welcome "+firebaseUser.getDisplayName());
+        }
 
         initWidgets();
         selectedDate = LocalDate.now();
@@ -141,6 +128,10 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         {
             String message = "Selected Date " + dayText + " " + monthYearFromDate(selectedDate);
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+
+            Intent intent = new Intent(MainMenuActivity.this, DayInCalender.class);
+            startActivity(intent);
+            DayInCalender.initDayInCalender(dayText, monthYearFromDate(selectedDate));
         }
     }
 }

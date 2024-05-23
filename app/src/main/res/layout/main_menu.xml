@@ -151,8 +151,8 @@
 
         <TextView
             android:id="@+id/welcometv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="40sp"
             android:layout_gravity="center"
             android:text="Hi Name"
             android:textSize="25sp"
@@ -166,7 +166,7 @@
             android:layout_height="48sp"
             android:backgroundTint="#e6ccb2"
             android:text="Sign out"
-            android:textColor="#78685c"
+            android:textColor="@color/mocha"
             android:layout_marginRight="10sp" />
 
     </LinearLayout>

@@ -14,6 +14,7 @@
             android:layout_width="50sp"
             android:layout_height="50sp"
             android:background="@drawable/arrowpointingleft"
+            android:contentDescription="Exit arrow"
             android:id="@+id/exitBtn"/>
         
         <TextView
@@ -45,36 +46,19 @@
             android:layout_marginLeft="10sp"
             android:textColor="@color/mocha"
             android:text="0"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:id="@+id/pendingTasksTV"/>
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="10sp">
+        android:layout_marginTop="10sp"
+        android:layout_marginBottom="40sp">
 
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
-            android:layout_height="30sp"
-            android:orientation="horizontal">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginLeft="10sp"
-                android:textColor="@color/gray"
-                android:text="00:00 "
-                android:textSize="20sp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10sp"
-                android:textColor="@color/gray"
-                android:text=""
-                android:background="@drawable/horizontalline"
-                android:textSize="20sp"/>
-        </LinearLayout>
+            android:layout_height="match_parent"/>
     </ScrollView>
 
 </LinearLayout>

@@ -19,6 +19,9 @@
             android:name=".MainMenuActivity"
             android:exported="false" />
         <activity
+            android:name=".DayInCalender"
+            android:exported="false"/>
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
