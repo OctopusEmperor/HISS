@@ -1,5 +1,6 @@
 package com.example.hiss;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -7,11 +8,14 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
-public class DayInCalender extends AppCompatActivity implements View.OnClickListener {
+public class DayInCalender extends AppCompatActivity implements View.OnClickListener, DayAdapter.OnItemListener {
 
     ImageButton exitBtn;
-    private TextView monthDayTV, pendingTasksTV;
+    TextView monthDayTV, pendingTasksTV;
+    Dialog d;
+    RecyclerView dayRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +26,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         pendingTasksTV = (TextView) findViewById(R.id.pendingTasksTV);
         exitBtn = (ImageButton) findViewById(R.id.exitBtn);
         exitBtn.setOnClickListener(this);
+        initDayInCalender();
+        initWidgets();
     }
 
     @Override
@@ -33,29 +39,34 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    public void initDayInCalender(String day, String month){
-        DayInCalender dayInCalender = new DayInCalender();
-        TextView tv = dayInCalender.getMonthDayTV();
-        tv.setText(month + " " + day);
+    public void initWidgets() {
+        dayRecyclerView = (RecyclerView) findViewById(R.id.dayRecyclerView);
     }
 
-    public void initThings(){
+    public void times(){
 
     }
 
-    public TextView getPendingTasksTV() {
-        return pendingTasksTV;
+    public void createEventDialog() {
+        d = new Dialog(this);
+        d.setContentView(R.layout.event_dialog);
+        d.setTitle("Add Event");
+        d.setCancelable(true);
+
+        d.show();
     }
 
-    public void setPendingTasksTV(TextView pendingTasksTV) {
-        this.pendingTasksTV = pendingTasksTV;
+    public void initDayInCalender(){
+        Intent intent = getIntent();
+        String day = intent.getStringExtra("day");
+        String month = intent.getStringExtra("month");
+        monthDayTV.setText(month + " " + day);
     }
 
-    public TextView getMonthDayTV() {
-        return monthDayTV;
-    }
+    @Override
+    public void onItemClick(int position, String event, String time){
+         if (!event.equals("")){
 
-    public void setMonthDayTV(TextView monthDayTV) {
-        this.monthDayTV = monthDayTV;
+         }
     }
 }

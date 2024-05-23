@@ -121,6 +121,11 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         setMonthView();
     }
 
+    public String monthOfSelectedDate(LocalDate date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM");
+        return date.format(formatter);
+    }
+
 
     @Override
     public void onItemClick(int position, String dayText) {
@@ -130,9 +135,10 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
             Intent intent = new Intent(MainMenuActivity.this, DayInCalender.class);
+            intent.putExtra("day", dayText);
+            intent.putExtra("month", monthOfSelectedDate(selectedDate));
             startActivity(intent);
-            DayInCalender dayInCalender = new DayInCalender();
-            dayInCalender.initDayInCalender(dayText, monthYearFromDate(selectedDate));
+
         }
     }
 }
