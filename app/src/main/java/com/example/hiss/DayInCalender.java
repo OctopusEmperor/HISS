@@ -33,10 +33,14 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    public static void initDayInCalender(String day, String month){
+    public void initDayInCalender(String day, String month){
         DayInCalender dayInCalender = new DayInCalender();
         TextView tv = dayInCalender.getMonthDayTV();
         tv.setText(month + " " + day);
+    }
+
+    public void initThings(){
+
     }
 
     public TextView getPendingTasksTV() {

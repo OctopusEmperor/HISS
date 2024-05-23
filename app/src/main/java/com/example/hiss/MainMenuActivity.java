@@ -131,7 +131,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
             Intent intent = new Intent(MainMenuActivity.this, DayInCalender.class);
             startActivity(intent);
-            DayInCalender.initDayInCalender(dayText, monthYearFromDate(selectedDate));
+            DayInCalender dayInCalender = new DayInCalender();
+            dayInCalender.initDayInCalender(dayText, monthYearFromDate(selectedDate));
         }
     }
 }
