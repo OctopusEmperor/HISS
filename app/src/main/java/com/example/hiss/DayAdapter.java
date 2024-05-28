@@ -3,17 +3,20 @@ package com.example.hiss;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+
 public class DayAdapter extends RecyclerView.Adapter<DayViewHolder>{
 
-    private final String[] times;
-    private final String[] events;
+    private final ArrayList<String> times;
+    private final ArrayList<String> events;
     private final OnItemListener onItemListener;
 
-    public DayAdapter(String[] times, String[] events, OnItemListener onItemListener) {
+    public DayAdapter(ArrayList<String> times, ArrayList<String> events, OnItemListener onItemListener) {
         this.times = times;
         this.events = events;
         this.onItemListener = onItemListener;
@@ -31,15 +34,16 @@ public class DayAdapter extends RecyclerView.Adapter<DayViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull DayViewHolder holder, int position) {
-        holder.time.setText(times[position]);
+        holder.time.setText(times.get(position));
+        holder.event.setText(events.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return times.size();
     }
 
     public interface OnItemListener{
-        void onItemClick(int position, String event, String time);
+        void onItemClick(int position, String event, String time, Button eventBtn);
     }
 }

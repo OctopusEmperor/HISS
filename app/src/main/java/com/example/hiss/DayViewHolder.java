@@ -27,6 +27,6 @@ public class DayViewHolder extends RecyclerView.ViewHolder implements View.OnCli
 
     @Override
     public void onClick(View v) {
-        onItemListener.onItemClick(getAdapterPosition(), (String) event.getText(),(String) time.getText());
+        onItemListener.onItemClick(getAdapterPosition(), (String) event.getText(),(String) time.getText(), (Button) event);
     }
 }
