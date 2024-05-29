@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_marginLeft="10sp"
@@ -10,31 +10,55 @@
     android:layout_marginRight="10sp"
     android:background="@color/pinkhue">
 
-    <EditText
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textColor="@color/gray"
-        android:hint="Enter a Title"
-        android:id="@+id/titleET"/>
+        android:orientation="horizontal">
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="Enter a Description"
-        android:textColor="@color/gray"
-        android:textSize="20sp"
-        android:id="@+id/descriptionET"/>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <androidx.appcompat.widget.SwitchCompat
-        android:layout_width="wrap_content"
-        android:layout_height="48sp"
-        android:text="All-day   "
-        android:textSize="20sp"
-        android:textColor="@color/gray"
-        app:showText="true"
-        android:id="@+id/switchCompat"
-        />
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="@color/gray"
+                android:hint="Enter a Title"
+                android:id="@+id/titleET"/>
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Enter a Description"
+                android:textColor="@color/gray"
+                android:textSize="20sp"
+                android:id="@+id/descriptionET"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:layout_width="wrap_content"
+                android:layout_height="48sp"
+                android:text="All-day   "
+                android:textSize="20sp"
+                android:textColor="@color/gray"
+                app:showText="true"
+                android:id="@+id/switchCompat"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20sp"
+            android:text="Change the title! Title is similar to another event happening at the same time."
+            android:textColor="@color/red"
+            android:layout_marginTop="20sp"
+            android:textStyle="bold"
+            android:layout_marginRight="10sp"
+            android:visibility="invisible"
+            android:id="@+id/errorMsg"/>
+    </LinearLayout>
 
     <TimePicker
         android:layout_width="wrap_content"
@@ -49,9 +73,10 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:text="Save"
-        android:backgroundTint="@color/coffee"
+        android:background="@drawable/round_button"
         android:layout_marginTop="10sp"
         android:id="@+id/saveBtn"
+        android:layout_marginBottom="10sp"
         />
 
 
