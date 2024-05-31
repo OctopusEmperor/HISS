@@ -27,16 +27,18 @@
             android:id="@+id/monthDayTV" />
 
         <TextView
+            android:id="@+id/allDayTV"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:text="All Day event"
-            android:textColor="@color/gray"
             android:layout_marginLeft="10sp"
             android:layout_marginTop="10sp"
-            android:textSize="15sp"
+            android:layout_marginBottom="10sp"
             android:background="@color/citrus"
             android:gravity="center"
-            android:id="@+id/allDayTV"/>
+            android:text="All Day Event"
+            android:visibility="invisible"
+            android:textColor="@color/lightBlack"
+            android:textSize="15sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -75,12 +77,12 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginLeft="10sp"
                 android:background="@color/coffee">
@@ -298,11 +300,12 @@
                     android:background="@drawable/horizontalline"/>
 
                 <TextView
-                    android:layout_width="340sp"
+                    android:layout_width="320sp"
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv00" />
 
                 <ImageView
@@ -312,11 +315,12 @@
                     android:layout_marginTop="4.5sp"/>
 
                 <TextView
-                    android:layout_width="340sp"
+                    android:layout_width="320sp"
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv01" />
 
                 <ImageView
@@ -326,11 +330,12 @@
                     android:layout_marginTop="4.5sp"/>
 
                 <TextView
-                    android:layout_width="340sp"
+                    android:layout_width="320sp"
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv02" />
 
                 <ImageView
@@ -340,11 +345,12 @@
                     android:layout_marginTop="4.5sp"/>
 
                 <TextView
-                    android:layout_width="340sp"
+                    android:layout_width="320sp"
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv03"/>
 
                 <ImageView
@@ -354,11 +360,12 @@
                     android:layout_marginTop="4.5sp"/>
 
                 <TextView
-                    android:layout_width="340sp"
+                    android:layout_width="320sp"
                     android:layout_height="wrap_content"
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv04"/>
 
                 <ImageView
@@ -373,6 +380,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv05"/>
 
                 <ImageView
@@ -387,6 +395,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv06"/>
 
                 <ImageView
@@ -401,6 +410,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv07"/>
 
                 <ImageView
@@ -415,6 +425,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv08"/>
 
                 <ImageView
@@ -429,6 +440,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv09"/>
 
                 <ImageView
@@ -443,6 +455,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv10"/>
 
                 <ImageView
@@ -457,6 +470,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv11"/>
 
                 <ImageView
@@ -471,6 +485,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv12"/>
 
                 <ImageView
@@ -485,6 +500,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv13"/>
 
                 <ImageView
@@ -499,6 +515,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv14"/>
 
                 <ImageView
@@ -513,6 +530,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv15"/>
 
                 <ImageView
@@ -527,6 +545,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv16"/>
 
                 <ImageView
@@ -541,6 +560,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv17"/>
 
                 <ImageView
@@ -555,6 +575,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv18"/>
 
                 <ImageView
@@ -569,6 +590,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv19"/>
 
                 <ImageView
@@ -583,6 +605,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv20"/>
 
                 <ImageView
@@ -597,6 +620,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv21"/>
 
                 <ImageView
@@ -611,6 +635,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv22"/>
 
                 <ImageView
@@ -625,6 +650,7 @@
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv23"/>
 
                 <ImageView
@@ -635,10 +661,11 @@
 
                 <TextView
                     android:layout_width="340sp"
-                    android:layout_height="55sp"
+                    android:layout_height="30sp"
                     android:text=""
                     android:textSize="20sp"
                     android:textColor="@color/gray"
+                    android:gravity="center"
                     android:id="@+id/tv24"/>
             </LinearLayout>
         </LinearLayout>

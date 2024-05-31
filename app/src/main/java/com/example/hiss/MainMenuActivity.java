@@ -1,13 +1,16 @@
 package com.example.hiss;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -28,6 +31,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     private RecyclerView calendarRecyclerView;
     private LocalDate selectedDate;
     FirebaseAuth mAuth;
+    ArrayList<DayStatus> dayStatuses;
+    Drawable dayWithEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +53,21 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         initWidgets();
         selectedDate = LocalDate.now();
         setMonthView();
+        dayWithEvent = ResourcesCompat.getDrawable(getResources(), R.drawable.daywithevent, null);
     }
 
     @Override
     public void onClick(View v) {
         if (v == signOutButton){
             signOut();
+        }
+    }
+
+    public void parseDayStatuses(ArrayList<DayStatus> dayStatuses, @NonNull CalendarViewHolder holder){
+        for (int i=0; i < dayStatuses.size(); i++){
+            if (dayStatuses.get(i).getMonth()==selectedDate.getMonthValue() && dayStatuses.get(i).getYear()==selectedDate.getYear()){
+                holder.dayOfMonth.setBackground(dayWithEvent);
+            }
         }
     }
 
@@ -66,6 +80,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     {
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
+        dayStatuses = new ArrayList<DayStatus>();
     }
 
     private void setMonthView()

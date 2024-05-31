@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -19,7 +18,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class DayInCalender extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-
     ImageButton exitBtn;
     TextView monthDayTV, pendingTasksTV, allDayTV, errorMsg;
     Dialog d;
@@ -30,9 +28,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
     String title, description, time;
     boolean[] statuses;
     ArrayList<ArrayList<Event>> arrayListEvents;
-    Event events;
     TextView tv00, tv01, tv02, tv03, tv04, tv05, tv06, tv07, tv08, tv09, tv10, tv11, tv12, tv13, tv14, tv15, tv16, tv17, tv18, tv19, tv20, tv21, tv22, tv23, tv24;
-    ViewGroup view;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,24 +65,20 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         if (saveBtn==v) {
             title = this.titleET.getText().toString();
             description = this.descriptionET.getText().toString();
-            if (switchCompat.isChecked()==false){
-                time = tp.getHour() + ":" + tp.getMinute();
-            }
-            else {
-                time = "all-day";
-            }
-
-            int hour = Integer.valueOf(time.substring(0, 1));
-
-            if (checkTitleValidity(arrayListEvents.get(hour),title,time)){
-                Event event = new Event(title, description, time);
-
-                if (time.equals("all-day")){
-                    allDayTV.setText(title);
+            int hour;
+            if (!switchCompat.isChecked()){
+                if (tp.getHour() < 10){
+                  time = "0" + tp.getHour() + ":" + tp.getMinute();
                 }
                 else {
+                    time = tp.getHour() + ":" + tp.getMinute();
+                }
+                hour = Integer.parseInt(time.substring(0, 2));
+                if (checkTitleValidity(arrayListEvents.get(hour),title,time)){
+                    Event event = new Event(title, description, time);
+
                     for (int i = 0; i < 25; i++){
-                        if (i==Integer.valueOf(time.substring(0, 1))){
+                        if (i==hour){
                             int id;
                             if (i<10){
                                 id = getId("tv0"+String.valueOf(i), R.id.class);
@@ -95,17 +87,27 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                                 id = getId("tv"+String.valueOf(i), R.id.class);
                             }
                             TextView tv = (TextView) findViewById(id);
-                            tv.setText(tv.getText().toString()+" | "+title);
+                            if (arrayListEvents.get(i).size()>0){
+                                tv.setText(tv.getText().toString()+" | "+title);
+                            }
+                            else {
+                                tv.setText(title);
+                            }
                             statuses[i]=true;
                             arrayListEvents.get(i).add(event);
                         }
                     }
+                    d.dismiss();
                 }
-
-                d.dismiss();
+                else {
+                    errorMsg.setVisibility(View.VISIBLE);
+                }
             }
             else {
-                errorMsg.setVisibility(View.VISIBLE);
+                time = "all-day";
+                allDayTV.setText(title);
+                allDayTV.setVisibility(View.VISIBLE);
+                d.dismiss();
             }
         }
 
@@ -114,10 +116,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[0]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv01 == v){
@@ -125,10 +125,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[1]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv02 == v){
@@ -136,10 +134,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[2]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv03 == v){
@@ -147,10 +143,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[3]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv04 == v){
@@ -158,10 +152,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[4]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv05 == v){
@@ -169,10 +161,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[5]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv06 == v){
@@ -180,10 +170,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[6]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv07 == v){
@@ -191,10 +179,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[7]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv08 == v){
@@ -202,10 +188,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[8]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv09 == v){
@@ -213,10 +197,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[9]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv10 == v){
@@ -224,10 +206,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[10]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv11 == v){
@@ -235,10 +215,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[11]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv12 == v){
@@ -246,10 +224,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[12]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv13 == v){
@@ -257,10 +233,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[13]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv14 == v){
@@ -268,10 +242,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[14]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv15 == v){
@@ -279,10 +251,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[15]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv16 == v){
@@ -290,10 +260,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[16]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv17 == v){
@@ -301,10 +269,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[17]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv18 == v){
@@ -312,10 +278,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[18]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv19 == v){
@@ -323,10 +287,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[19]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv20 == v){
@@ -334,10 +296,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[20]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv21 == v) {
@@ -345,10 +305,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[21]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv22 == v) {
@@ -356,10 +314,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[22]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv23 == v) {
@@ -367,10 +323,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[23]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
         if (tv24 == v){
@@ -378,10 +332,8 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             if (statuses[24]==false){
                 createEventDialog();
             }
-            else {
-                if (array.size() <= 1){
-                    editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-                }
+            else if (array.size() <= 1){
+                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
             }
         }
     }
@@ -399,7 +351,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
     public boolean checkTitleValidity(ArrayList<Event> array, String title, String time){
         for (int i=0; i<array.size(); i++){
             if (array.get(i).getTitle().equals(title)){
-                if (array.get(i).getTime()==time){
+                if (array.get(i).getTime().substring(0,2).equals(time.substring(0,2))){
                     return false;
                 }
             }
@@ -416,6 +368,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
 
         titleET = (EditText) d.findViewById(R.id.titleET);
         descriptionET = (EditText) d.findViewById(R.id.descriptionET);
+        errorMsg = (TextView) d.findViewById(R.id.errorMsg);
         switchCompat = (SwitchCompat) d.findViewById(R.id.switchCompat);
         switchCompat.setOnCheckedChangeListener(this);
         tp = (TimePicker) d.findViewById(R.id.timePicker);
