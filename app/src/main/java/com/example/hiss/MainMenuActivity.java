@@ -1,8 +1,11 @@
 package com.example.hiss;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -16,13 +19,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
-public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener, CalendarAdapter.OnItemListener {
+public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener, CalendarAdapter.OnItemListener, ValueEventListener {
 
     TextView welcometv;
     Button signOutButton;
@@ -33,6 +41,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     FirebaseAuth mAuth;
     ArrayList<DayStatus> dayStatuses;
     Drawable dayWithEvent;
+    FirebaseDatabase database;
+    DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +60,14 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             welcometv.setText("Welcome "+firebaseUser.getDisplayName());
         }
 
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("DayStatus");
+        myRef.addValueEventListener(this);
+        if (null==dayStatuses){
+            dayStatuses = new ArrayList<>();
+            myRef.child("users").child(firebaseUser.getUid()).setValue(dayStatuses);
+        }
+
         initWidgets();
         selectedDate = LocalDate.now();
         setMonthView();
@@ -63,14 +81,6 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    public void parseDayStatuses(ArrayList<DayStatus> dayStatuses, @NonNull CalendarViewHolder holder){
-        for (int i=0; i < dayStatuses.size(); i++){
-            if (dayStatuses.get(i).getMonth()==selectedDate.getMonthValue() && dayStatuses.get(i).getYear()==selectedDate.getYear()){
-                holder.dayOfMonth.setBackground(dayWithEvent);
-            }
-        }
-    }
-
     void signOut(){
         mAuth.signOut();
         startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
@@ -80,7 +90,6 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     {
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
-        dayStatuses = new ArrayList<DayStatus>();
     }
 
     private void setMonthView()
@@ -141,6 +150,11 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         return date.format(formatter);
     }
 
+    public String yearOfSelectedDate(LocalDate date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
+        return date.format(formatter);
+    }
+
 
     @Override
     public void onItemClick(int position, String dayText) {
@@ -152,8 +166,19 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             Intent intent = new Intent(MainMenuActivity.this, DayInCalender.class);
             intent.putExtra("day", dayText);
             intent.putExtra("month", monthOfSelectedDate(selectedDate));
+            intent.putExtra("year", yearOfSelectedDate(selectedDate));
             startActivity(intent);
 
         }
+    }
+
+    @Override
+    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+        dayStatuses = (ArrayList<DayStatus>) dataSnapshot.getValue();
+    }
+
+    @Override
+    public void onCancelled(@NonNull DatabaseError databaseError) {
+        Log.w(TAG, "Failed to read value.", databaseError.toException());
     }
 }
