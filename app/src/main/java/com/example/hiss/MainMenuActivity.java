@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -43,6 +44,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     Drawable dayWithEvent;
     FirebaseDatabase database;
     DatabaseReference myRef;
+    LinearLayout taskLL, topicLL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,12 +74,27 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         selectedDate = LocalDate.now();
         setMonthView();
         dayWithEvent = ResourcesCompat.getDrawable(getResources(), R.drawable.daywithevent, null);
+
+        taskLL = findViewById(R.id.taskLL);
+        taskLL.setOnClickListener(this);
+        topicLL = findViewById(R.id.topicLL);
+        topicLL.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         if (v == signOutButton){
             signOut();
+        }
+
+        if (taskLL==v){
+            Intent intent = new Intent(MainMenuActivity.this, TDL.class);
+            startActivity(intent);
+        }
+
+        if (topicLL==v){
+            Intent intent = new Intent(MainMenuActivity.this, TopicSubjectsTab.class);
+            startActivity(intent);
         }
     }
 
