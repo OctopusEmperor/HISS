@@ -22,6 +22,8 @@ public class SubjectAdapter extends RecyclerView.Adapter<SubjectViewHolder> {
     @Override
     public SubjectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.subject_cell, parent, false);
+        ViewGroup.LayoutParams layoutParams = view.getLayoutParams ();
+        layoutParams.height = (int) (parent.getHeight()*10);
         return new SubjectViewHolder(view);
     }
 
@@ -30,13 +32,13 @@ public class SubjectAdapter extends RecyclerView.Adapter<SubjectViewHolder> {
         String title = subjectList.get(i);
         holder.titleTV.setText(title);
         holder.itemView.setOnClickListener(view -> {
-            mItemListener.onItemClick(subjectList.get(i));
+            mItemListener.onItemClick(title);
         });
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return subjectList.size();
     }
 
     public interface ItemClickListener{

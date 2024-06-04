@@ -3,7 +3,6 @@ package com.example.hiss;
 import static android.content.ContentValues.TAG;
 
 import android.app.Dialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,7 +11,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
@@ -38,7 +37,8 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         addSubjectsBtn = findViewById(R.id.addSubjectBtn);
         addSubjectsBtn.setOnClickListener(this);
         subjectRecyclerView = findViewById(R.id.subjectRecyclerView);
-        subjectRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 2);
+        subjectRecyclerView.setLayoutManager(layoutManager);
 
         subjectList = new ArrayList<>();
         subjectAdapter = new SubjectAdapter(subjectList, new SubjectAdapter.ItemClickListener() {
@@ -48,14 +48,15 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
             }
         });
         subjectRecyclerView.setAdapter(subjectAdapter);
+        subjectList.add("boolbool");
+        subjectAdapter.notifyItemInserted(subjectList.size()-1);
+        Log.d(TAG, "Added boolbool");
     }
 
     @Override
     public void onClick(View v) {
         if (exitBtb==v){
             finish();
-            Intent intent = new Intent(TopicSubjectsTab.this, MainActivity.class);
-            startActivity(intent);
         }
 
         if (addSubjectsBtn==v){
@@ -63,12 +64,10 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         }
 
         if (saveBtn==v){
-            Log.d(TAG, "onClick: "+titleET.getText().toString());
             String title = titleET.getText().toString();
             subjectList.add(title);
             subjectAdapter.notifyItemInserted(subjectList.size()-1);
             d.dismiss();
-            Log.d(TAG, "onClick: "+titleET.getText().toString());
         }
     }
 
@@ -78,8 +77,8 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         d.setTitle("New Subject");
         d.setCancelable(true);
 
-        titleET = d.findViewById(R.id.titleET);
-        saveBtn = d.findViewById(R.id.saveBtn);
+        titleET = (EditText) d.findViewById(R.id.titleET);
+        saveBtn = (Button) d.findViewById(R.id.saveBtn);
         saveBtn.setOnClickListener(this);
 
         d.show();
