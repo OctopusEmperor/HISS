@@ -16,6 +16,9 @@ public class DayStatus {
         this.events = events;
     }
 
+    public DayStatus(){
+    }
+
     public int getDay() {
         return day;
     }
