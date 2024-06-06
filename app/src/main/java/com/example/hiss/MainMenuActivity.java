@@ -31,6 +31,7 @@ import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener, CalendarAdapter.OnItemListener {
 
@@ -41,7 +42,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     private LocalDate selectedDate;
     private FirebaseUser firebaseUser;
     FirebaseAuth mAuth;
-    ArrayList<DayStatus> dayStatuses;
+    List<DayStatus> dayStatuses;
     Drawable dayWithEvent;
     FirebaseDatabase database;
     DatabaseReference myRef;
@@ -64,6 +65,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         if (firebaseUser != null) {
             welcometv.setText("Welcome " + firebaseUser.getDisplayName());
         }
+
         dayStatuses = new ArrayList<>();
 
         database = FirebaseDatabase.getInstance();
@@ -72,6 +74,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
+
                     for (DataSnapshot dss : snapshot.getChildren()){
                         DayStatus dayStatus = dss.getValue(DayStatus.class);
                         dayStatuses.add(dayStatus);

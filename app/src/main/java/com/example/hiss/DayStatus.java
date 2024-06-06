@@ -16,7 +16,12 @@ public class DayStatus {
         this.events = events;
     }
 
-    public DayStatus(){
+    public DayStatus() {
+        this.day = 0;
+        this.month = 0;
+        this.year = 0;
+        this.status = false;
+        this.events = new ArrayList<>();
     }
 
     public int getDay() {

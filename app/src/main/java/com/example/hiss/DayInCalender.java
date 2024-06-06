@@ -27,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.List;
 
 public class DayInCalender extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     ImageButton exitBtn;
@@ -42,21 +43,39 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
     TextView tv00, tv01, tv02, tv03, tv04, tv05, tv06, tv07, tv08, tv09, tv10, tv11, tv12, tv13, tv14, tv15, tv16, tv17, tv18, tv19, tv20, tv21, tv22, tv23, tv24;
     DatabaseReference myRef;
     DayStatus dayStatus;
+    List<DayStatus> dayStatuses;
+    int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.day_calender);
 
+        monthDayTV = (TextView) findViewById(R.id.monthDayTV);
+        pendingTasksTV = (TextView) findViewById(R.id.pendingTasksTV);
+        allDayTV = (TextView) findViewById(R.id.allDayTV);
+        allDayTV.setOnClickListener(this);
+        exitBtn = (ImageButton) findViewById(R.id.exitBtn);
+        exitBtn.setOnClickListener(this);
+
+        Intent intent = getIntent();
+        day = intent.getStringExtra("day");
+        month = intent.getStringExtra("month");
+        year = intent.getStringExtra("year");
+        monthDayTV.setText(month + " " + day + " |");
+
+        dayStatuses = new ArrayList<>();
+
         FirebaseUser firebaseUser = getIntent().getParcelableExtra("user");
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("user/"+firebaseUser.getUid()+"/daystatus/ds"+day+month+year);
+        myRef = database.getReference("user/"+firebaseUser.getUid()+"/daystatus/");
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
-                    for (DataSnapshot dss : dataSnapshot.getChildren()){
-                        dayStatus = dss.getValue(DayStatus.class);
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        DayStatus dayStatus = ds.getValue(DayStatus.class);
+                        dayStatuses.add(dayStatus);
                     }
                 }
             }
@@ -66,14 +85,17 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                 Log.d(TAG, "Failed to read value: " + databaseError);
             }
         });
+        index = -1;
+        for (int i=0; i<dayStatuses.size(); i++){
+            DayStatus ds = dayStatuses.get(i);
+            if (ds.getYear()==Integer.parseInt(year) && ds.getMonth()==monthFromString(month) && ds.getDay()==Integer.parseInt(day)){
+                dayStatus = dayStatuses.get(i);
+                index = i;
+            }
+        }
 
-        monthDayTV = (TextView) findViewById(R.id.monthDayTV);
-        pendingTasksTV = (TextView) findViewById(R.id.pendingTasksTV);
-        allDayTV = (TextView) findViewById(R.id.allDayTV);
-        allDayTV.setOnClickListener(this);
-        exitBtn = (ImageButton) findViewById(R.id.exitBtn);
-        exitBtn.setOnClickListener(this);
         initDayInCalender();
+
         statuses = new boolean[25];
         arrayListEvents = new ArrayList<ArrayList<Event>>(25);
 
@@ -81,8 +103,13 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             boolean status=false;
             statuses[i] = status;
 
-            ArrayList<Event> eventNodes = new ArrayList<Event>();
-            arrayListEvents.add(eventNodes);
+            if (dayStatus==null) {
+                ArrayList<Event> eventNodes = new ArrayList<Event>();
+                arrayListEvents.add(eventNodes);
+            }
+        }
+        if (dayStatus!=null){
+            arrayListEvents = dayStatus.getEvents();
         }
     }
 
@@ -180,9 +207,14 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                             arrayListEvents.get(i).add(event);
 
                             FirebaseUser firebaseUser = getIntent().getParcelableExtra("user");
-                            DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatus");
+                            DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatus/");
                             DayStatus dayStatus1 = new DayStatus(Integer.parseInt(day), monthFromString(month), Integer.parseInt(year), true, arrayListEvents);
-                            myRef.child("ds"+day+month+year).setValue(dayStatus1);
+                            if (index ==-1) {
+                                myRef.child(String.valueOf(dayStatuses.size())).setValue(dayStatus1);
+                            }
+                            else {
+                                myRef.child(String.valueOf(index)).setValue(dayStatus1);
+                            }
                         }
                     }
                     d.dismiss();
@@ -502,12 +534,6 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
 
 
     public void initDayInCalender(){
-        Intent intent = getIntent();
-        day = intent.getStringExtra("day");
-        month = intent.getStringExtra("month");
-        year = intent.getStringExtra("year");
-        monthDayTV.setText(month + " " + day + " |");
-
         tv00 = (TextView) findViewById(R.id.tv00);
         tv01 = (TextView) findViewById(R.id.tv01);
         tv02 = (TextView) findViewById(R.id.tv02);
@@ -560,10 +586,12 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         tv23.setOnClickListener(this);
         tv24.setOnClickListener(this);
 
+        Log.d(TAG, "Initialized day in calender");
         if (dayStatus!=null){
+        Log.d(TAG, "dayStatus: " + dayStatus);
             ArrayList<ArrayList<Event>> events = dayStatus.getEvents();
             for (int i=0; i<25; i++){
-                if (events.get(i).size()>0) {
+                if (!events.get(i).isEmpty()) {
                     for (int j = 0; j < events.get(i).size(); j++) {
                         Event event = events.get(i).get(j);
                         if (event.getTime().equals("all-day")) {
@@ -583,7 +611,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                                 id = getId("tv" + String.valueOf(i), R.id.class);
                             }
                             TextView tv = (TextView) findViewById(id);
-                            if (tv.equals("")){
+                            if (tv.getText().toString().equals("")){
                                 tv.setText(event.getTitle());
                             }
                             else {
