@@ -46,10 +46,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>  {
             Log.d("ContentValues", "Events on day " +  daysOfMonth.get(position));
             holder.dayOfMonth.setBackgroundResource(R.drawable.daywithevent);
         }
-        else {
-            Log.d("ContentValues", "No events on day " +  daysOfMonth.get(position));
-            holder.dayOfMonth.setBackgroundResource(R.drawable.calenderdayborder);
-        }
     }
 
     @Override

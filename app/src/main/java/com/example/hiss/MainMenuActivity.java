@@ -112,12 +112,13 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                         dates.add(date);
                     }
                     Log.d(TAG, "Successfully read value: " + dates);
-                    setMonthView();
                 }
+                setMonthView();
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Log.d(TAG, "onCancelled: "+error.getMessage());
+                setMonthView();
             }
         });
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
@@ -150,6 +151,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                 }
             }
         }
+        Log.d(TAG, "Statuses size: " + statuses.size());
         return statuses;
     }
 
@@ -160,8 +162,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
         CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, statuses, this);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 7);
-        calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);
+        calendarRecyclerView.setLayoutManager(layoutManager);
     }
 
     private ArrayList<String> daysInMonthArray(LocalDate date) {

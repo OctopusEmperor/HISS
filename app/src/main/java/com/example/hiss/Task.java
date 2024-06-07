@@ -14,6 +14,13 @@ public class Task {
         this.status = status;
     }
 
+    public Task(){
+        this.title = title;
+        this.description = description;
+        this.urgency = urgency;
+        this.status = status;
+    }
+
     public String getTitle() {
         return title;
     }

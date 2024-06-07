@@ -15,11 +15,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder> {
 
@@ -34,6 +39,7 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
     TextView errorMsg;
     private String day,month,year;
     private  FirebaseUser firebaseUser;
+    int datePosition, eventPosition;
 
 
 
@@ -65,7 +71,8 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
         }
         holder.timeTV.setText(hour + ":00");
         holder.itemView.setOnClickListener(view -> {
-            mItemListener.onItemClick(position);
+            if (mItemListener != null)
+                mItemListener.onItemClick(position);
         });
 
         for (int j=0; j<3; j++){
@@ -76,24 +83,73 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
                 hourAdapter.notifyItemChanged(position);
                 holder.events[index].setVisibility(View.GONE);
 
-                DatabaseReference dateRef= FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/datewithevent/"+position);
-                dateRef.removeValue().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()){
-                        Log.d("ContentValues", "Event date deleted successfully");
+                for (int k=0; k<eventList.size(); k++) {
+                    if (eventList.get(k).size() == 0) {
+                        DatabaseReference dateRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/datewithevent");
+                        dateRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                if (dataSnapshot.exists()) {
+                                    List<Date> dates = new ArrayList<>();
+                                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                        Date date = snapshot.getValue(Date.class);
+                                        dates.add(date);
+                                    }
+
+                                    for (int i = 0; i < dates.size(); i++) {
+                                        if (dates.get(i).getDay() == Integer.parseInt(day) && dates.get(i).getMonth().equals(month) && dates.get(i).getYear() == Integer.parseInt(year)) {
+                                            int dateIndex = i;
+                                            dateRef.child("/" + i).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void unused) {
+                                                    dates.remove(dateIndex);
+                                                }
+                                            });
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+                                Log.d("ContentValues", "Failed to read value.", databaseError.toException());
+                            }
+                        });
                     }
-                    else {
-                        Log.d("ContentValues", "Failed to delete event date");
+                }
+
+                DatabaseReference eventRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatuses");
+                eventRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            List<DayStatus> dayStatusList = new ArrayList<>();
+                            for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                DayStatus dayStatus = snapshot.getValue(DayStatus.class);
+                                dayStatusList.add(dayStatus);
+                            }
+                            for (int i = 0; i < dayStatusList.size(); i++) {
+                                if (dayStatusList.get(i).getDay()==Integer.parseInt(day) && dayStatusList.get(i).getMonth()==monthFromString(month) && dayStatusList.get(i).getYear()==Integer.parseInt(year)) {
+                                    int eventIndex=i;
+                                    eventRef.child("/" + String.valueOf(i) + "/events/" + index).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void unused) {
+                                            dayStatusList.get(eventIndex).getEvents().remove(index);
+                                        }
+                                    });
+                                    eventPosition=i;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        Log.d("ContentValues", "Failed to read value.", databaseError.toException());
                     }
                 });
-                DatabaseReference eventRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatuses" + position + "/events/" + index);
-                eventRef.removeValue().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()){
-                        Log.d("ContentValues", "Event deleted successfully");
-                    }
-                    else {
-                        Log.d("ContentValues", "Failed delete event date");
-                    }
-                });;
 
                 return true;
             });

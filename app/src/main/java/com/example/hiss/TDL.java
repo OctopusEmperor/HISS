@@ -1,8 +1,11 @@
 package com.example.hiss;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,6 +44,7 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
     TextView dateTV;
     ImageButton exitBtn;
     FirebaseUser firebaseUser;
+    DatabaseReference myRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,12 +67,41 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onItemClick(Task task) {
                 int position = taskList.indexOf(task);
-                taskList.remove(position);
-                taskAdapter.notifyItemRemoved(position);
+
+                DatabaseReference delRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/tasks/" + position);
+                delRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        taskList.remove(position);
+                        taskAdapter.notifyItemRemoved(position);
+                    }
+                });
             }
         });
         tdlRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         tdlRecyclerView.setAdapter(taskAdapter);
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Attempting to read value: " + dataSnapshot);
+                if (dataSnapshot.exists()){
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        Task task = ds.getValue(Task.class);
+                        taskList.add(task);
+                        taskAdapter.notifyItemInserted(taskList.size()-1);
+                    }
+                    Log.d(TAG, "Successfully read value: " + taskList);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Failed to read value: " + databaseError);
+            }
+        });
     }
 
     @Override
@@ -79,6 +113,7 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         if (saveTaskBtn==v){
             taskList.add(new Task(titleET.getText().toString(), descriptionET.getText().toString(), getUrgency(radioGroup.getCheckedRadioButtonId()), false));
             taskAdapter.notifyItemInserted(taskList.size()-1);
+            updateTDL(new Task(titleET.getText().toString(), descriptionET.getText().toString(), getUrgency(radioGroup.getCheckedRadioButtonId()), false));
             d.dismiss();
         }
 
@@ -89,19 +124,29 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
-    public void updateTDL(){
-        DatabaseReference myRef= FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/tasks");
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+    public void updateTDL(Task newTask){
+        DatabaseReference tdlRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/tasks");
+        tdlRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
-
+                    boolean alreadyExist=false;
+                    List<Task> tasks = new ArrayList<>();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        Task task = ds.getValue(Task.class);
+                        tasks.add(task);
+                    }
+                    tasks.add(newTask);
+                    tdlRef.setValue(tasks);
+                }
+                else {
+                    tdlRef.setValue(taskList);
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                Log.d("onCancelled", "Failed to get reference" + tdlRef);
             }
         });
     }
