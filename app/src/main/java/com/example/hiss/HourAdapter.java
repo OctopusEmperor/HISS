@@ -2,6 +2,7 @@ package com.example.hiss;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,9 +15,13 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 
-public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder> implements View.OnLongClickListener {
+public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder> {
 
     private ArrayList<ArrayList<Event>> eventList;
     private HourAdapter.ItemClickListener mItemListener;
@@ -24,15 +29,22 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
     Dialog d;
     EditText titleET, descriptionET;
     SwitchCompat switchCompat;
-    TextView errorMsg;
     TimePicker tp;
     Button saveBtn, e1, e2, e3;
+    TextView errorMsg;
+    private String day,month,year;
+    private  FirebaseUser firebaseUser;
 
 
-    public HourAdapter(Context context, ArrayList<ArrayList<Event>> events, ItemClickListener itemClickListener) {
+
+    public HourAdapter(Context context, ArrayList<ArrayList<Event>> events, String day, String month, String year, FirebaseUser firebaseUser, ItemClickListener itemClickListener) {
         this.eventList = events;
         this.context = context;
         this.mItemListener = itemClickListener;
+        this.day = day;
+        this.month = month;
+        this.year = year;
+        this.firebaseUser = firebaseUser;
     }
 
     @NonNull
@@ -60,8 +72,29 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
             int index = j;
             holder.events[j].setOnLongClickListener(view -> {
                 eventList.get(position).remove(index);
-                HourAdapter hourAdapter = new HourAdapter(context, eventList, mItemListener);
+                HourAdapter hourAdapter = new HourAdapter(context, eventList, day, month, year, firebaseUser, mItemListener);
                 hourAdapter.notifyItemChanged(position);
+                holder.events[index].setVisibility(View.GONE);
+
+                DatabaseReference dateRef= FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/datewithevent/"+position);
+                dateRef.removeValue().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        Log.d("ContentValues", "Event date deleted successfully");
+                    }
+                    else {
+                        Log.d("ContentValues", "Failed to delete event date");
+                    }
+                });
+                DatabaseReference eventRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatuses" + position + "/events/" + index);
+                eventRef.removeValue().addOnCompleteListener(task -> {
+                    if (task.isSuccessful()){
+                        Log.d("ContentValues", "Event deleted successfully");
+                    }
+                    else {
+                        Log.d("ContentValues", "Failed delete event date");
+                    }
+                });;
+
                 return true;
             });
         }
@@ -93,18 +126,44 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
         return 24;
     }
 
-    @Override
-    public boolean onLongClick(View v) {
-        if (e1 == v) {
-            e1.setVisibility(View.GONE);
+    public int monthFromString(String month){
+        if (month.equals("January")){
+            return 1;
         }
-        if (e2 == v) {
-            e2.setVisibility(View.GONE);
+        if (month.equals("February")){
+            return 2;
         }
-        if (e3 == v) {
-            e3.setVisibility(View.GONE);
+        if (month.equals("March")){
+            return 3;
         }
-        return true;
+        if (month.equals("April")){
+            return 4;
+        }
+        if (month.equals("May")){
+            return 5;
+        }
+        if (month.equals("June")){
+            return 6;
+        }
+        if (month.equals("July")) {
+            return 7;
+        }
+        if (month.equals("August")){
+            return 8;
+        }
+        if (month.equals("September")) {
+            return 9;
+        }
+        if (month.equals("October")){
+            return 10;
+        }
+        if (month.equals("November")) {
+            return 11;
+        }
+        if (month.equals("December")){
+            return 12;
+        }
+        return 0;
     }
 
     public interface ItemClickListener {

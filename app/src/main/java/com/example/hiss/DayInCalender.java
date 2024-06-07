@@ -64,11 +64,18 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         eventList = new ArrayList<>(24);
         events = new ArrayList<>();
 
+        Intent intent = getIntent();
+        day = intent.getStringExtra("day");
+        month = intent.getStringExtra("month");
+        year = intent.getStringExtra("year");
+        firebaseUser = intent.getParcelableExtra("user");
+        monthDayTV.setText(month + " " + day + " |");
+
         for (int i=0; i<24; i++){
             eventList.add(new ArrayList<>());
         }
 
-        hourAdapter = new HourAdapter(this, eventList, new HourAdapter.ItemClickListener() {
+        hourAdapter = new HourAdapter(this, eventList, day, month , year, firebaseUser, new HourAdapter.ItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 createEventDialog();
@@ -77,13 +84,6 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(hourAdapter);
         recyclerView.setOnClickListener(this);
-
-        Intent intent = getIntent();
-        day = intent.getStringExtra("day");
-        month = intent.getStringExtra("month");
-        year = intent.getStringExtra("year");
-        firebaseUser = intent.getParcelableExtra("user");
-        monthDayTV.setText(month + " " + day + " |");
 
         dayStatuses = new ArrayList<>();
 
