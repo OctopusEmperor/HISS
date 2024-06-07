@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -42,12 +41,12 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     private LocalDate selectedDate;
     private FirebaseUser firebaseUser;
     FirebaseAuth mAuth;
-    List<DayStatus> dayStatuses;
     Drawable dayWithEvent;
     FirebaseDatabase database;
     DatabaseReference myRef;
     LinearLayout taskLL, topicLL;
     ImageButton notesBtn;
+    List<Date> dates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,40 +65,15 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             welcometv.setText("Welcome " + firebaseUser.getDisplayName());
         }
 
-        dayStatuses = new ArrayList<>();
-
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("users/" + firebaseUser.getUid()+"/daystatus");
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-
-                    for (DataSnapshot dss : snapshot.getChildren()){
-                        DayStatus dayStatus = dss.getValue(DayStatus.class);
-                        dayStatuses.add(dayStatus);
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d(TAG, "onCancelled: "+error.getMessage());
-            }
-        });
+        dates = new ArrayList<>();
 
         initWidgets();
         selectedDate = LocalDate.now();
-        setMonthView();
-        dayWithEvent = ResourcesCompat.getDrawable(getResources(), R.drawable.daywithevent, null);
 
         taskLL = findViewById(R.id.taskLL);
         taskLL.setOnClickListener(this);
         topicLL = findViewById(R.id.topicLL);
         topicLL.setOnClickListener(this);
-    }
-
-    public void saveListToDatabase(View v){
-
     }
 
     @Override
@@ -110,11 +84,13 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
         if (taskLL == v) {
             Intent intent = new Intent(MainMenuActivity.this, TDL.class);
+            intent.putExtra("user", firebaseUser);
             startActivity(intent);
         }
 
         if (topicLL == v) {
             Intent intent = new Intent(MainMenuActivity.this, TopicSubjectsTab.class);
+            intent.putExtra("user", firebaseUser);
             startActivity(intent);
         }
     }
@@ -125,15 +101,64 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void initWidgets() {
+        database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("users/" + firebaseUser.getUid()+"/datewithevent");
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        Date date = ds.getValue(Date.class);
+                        dates.add(date);
+                    }
+                    Log.d(TAG, "Successfully read value: " + dates);
+                    setMonthView();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.d(TAG, "onCancelled: "+error.getMessage());
+            }
+        });
         calendarRecyclerView = findViewById(R.id.calendarRecyclerView);
         monthYearText = findViewById(R.id.monthYearTV);
+    }
+
+    public ArrayList<Boolean> statusesFromDates(List<Date> dates, LocalDate date){
+        ArrayList<String> daysInMonth = daysInMonthArray(selectedDate);
+        ArrayList<Boolean> statuses = new ArrayList<>();
+        ArrayList<Date> datesInMonth = new ArrayList<>();
+
+        Log.d(TAG, "Dates size: " + dates.size());
+
+        for (int i=0; i<dates.size(); i++){
+            if (dates.get(i).getMonth().equals(monthOfSelectedDate(date)) && dates.get(i).getYear()==date.getYear()){
+                datesInMonth.add(dates.get(i));
+            }
+            Log.d(TAG, "datesInMonth size: " + datesInMonth.size());
+        }
+
+        for (int i=0; i<42; i++){
+            statuses.add(false);
+            if (!daysInMonth.get(i).equals("")){
+                int day = Integer.parseInt(daysInMonth.get(i));
+                for (int j=0;j<datesInMonth.size(); j++){
+                    Date d = datesInMonth.get(j);
+                    if (day == d.getDay()){
+                        statuses.set(i, true);
+                    }
+                }
+            }
+        }
+        return statuses;
     }
 
     private void setMonthView() {
         monthYearText.setText(monthYearFromDate(selectedDate));
         ArrayList<String> daysInMonth = daysInMonthArray(selectedDate);
+        ArrayList<Boolean> statuses = statusesFromDates(dates, selectedDate);
 
-        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, this);
+        CalendarAdapter calendarAdapter = new CalendarAdapter(daysInMonth, statuses, this);
         RecyclerView.LayoutManager layoutManager = new GridLayoutManager(getApplicationContext(), 7);
         calendarRecyclerView.setLayoutManager(layoutManager);
         calendarRecyclerView.setAdapter(calendarAdapter);

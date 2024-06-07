@@ -1,7 +1,5 @@
 package com.example.hiss;
 
-import static android.content.ContentValues.TAG;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,35 +8,28 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> implements ValueEventListener {
+public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>  {
 
     private final ArrayList<String> daysOfMonth;
     private final OnItemListener onItemListener;
+    private ArrayList<Boolean> statuses;
     DatabaseReference myRef;
-    ArrayList<DayStatus> dayStatusList;
 
-    public CalendarAdapter(ArrayList<String> daysOfMonth, OnItemListener onItemListener)
+    public CalendarAdapter(ArrayList<String> daysOfMonth, ArrayList<Boolean> statuses,OnItemListener onItemListener)
     {
         this.daysOfMonth = daysOfMonth;
         this.onItemListener = onItemListener;
+        this.statuses = statuses;
     }
 
     @NonNull
     @Override
     public CalendarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
     {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("DayStatus");
-        myRef.addValueEventListener(this);
-
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View view = inflater.inflate(R.layout.calendar_cell, parent, false);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams ();
@@ -50,34 +41,21 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder> im
     public void onBindViewHolder(@NonNull CalendarViewHolder holder, int position)
     {
         holder.dayOfMonth.setText(daysOfMonth.get(position));
-        if (dayStatusList!=null && isDayWithEvent(daysOfMonth.get(position))){
+        if (statuses.get(position))
+        {
+            Log.d("ContentValues", "Events on day " +  daysOfMonth.get(position));
             holder.dayOfMonth.setBackgroundResource(R.drawable.daywithevent);
         }
-    }
-
-    public boolean isDayWithEvent(String day){
-        for (int j=0; j<dayStatusList.size(); j++){
-            if (dayStatusList.get(j).getDay()==Integer.parseInt(day)){
-                return true;
-            }
+        else {
+            Log.d("ContentValues", "No events on day " +  daysOfMonth.get(position));
+            holder.dayOfMonth.setBackgroundResource(R.drawable.calenderdayborder);
         }
-        return false;
     }
 
     @Override
     public int getItemCount()
     {
         return daysOfMonth.size();
-    }
-
-    @Override
-    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-        dayStatusList = (ArrayList<DayStatus>) dataSnapshot.getValue();
-    }
-
-    @Override
-    public void onCancelled(@NonNull DatabaseError databaseError) {
-        Log.w(TAG, "Failed to read value.", databaseError.toException());
     }
 
     public interface  OnItemListener

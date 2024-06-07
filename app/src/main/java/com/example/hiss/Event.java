@@ -33,4 +33,9 @@ public class Event {
         this.description = description;
         this.time = time;
     }
+     public Event(){
+         this.title = title;
+         this.description = description;
+         this.time = time;
+     }
 }

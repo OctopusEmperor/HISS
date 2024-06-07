@@ -4,10 +4,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_marginTop="5sp"
-    android:layout_marginRight="5sp"
-    android:layout_marginLeft="5sp"
-    android:layout_marginBottom="5sp"
+    android:padding="5dp"
     android:background="@color/pinkhue">
 
     <EditText

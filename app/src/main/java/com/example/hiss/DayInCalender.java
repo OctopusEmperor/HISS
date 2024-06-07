@@ -17,6 +17,8 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -38,13 +40,14 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
     TimePicker tp;
     Button saveBtn;
     String title, description, time, day, month, year;
-    boolean[] statuses;
-    ArrayList<ArrayList<Event>> arrayListEvents;
-    TextView tv00, tv01, tv02, tv03, tv04, tv05, tv06, tv07, tv08, tv09, tv10, tv11, tv12, tv13, tv14, tv15, tv16, tv17, tv18, tv19, tv20, tv21, tv22, tv23, tv24;
     DatabaseReference myRef;
-    DayStatus dayStatus;
     List<DayStatus> dayStatuses;
-    int index;
+    RecyclerView recyclerView;
+    ArrayList<ArrayList<Event>> eventList;
+    HourAdapter hourAdapter;
+    Event allDayEvent;
+    FirebaseUser firebaseUser;
+    ArrayList<Event> events;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,26 +60,57 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         allDayTV.setOnClickListener(this);
         exitBtn = (ImageButton) findViewById(R.id.exitBtn);
         exitBtn.setOnClickListener(this);
+        recyclerView = findViewById(R.id.dayRecyclerView);
+        eventList = new ArrayList<>(24);
+        events = new ArrayList<>();
+
+        for (int i=0; i<24; i++){
+            eventList.add(new ArrayList<>());
+        }
+
+        hourAdapter = new HourAdapter(this, eventList, new HourAdapter.ItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                createEventDialog();
+            }
+        });
+        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        recyclerView.setAdapter(hourAdapter);
+        recyclerView.setOnClickListener(this);
 
         Intent intent = getIntent();
         day = intent.getStringExtra("day");
         month = intent.getStringExtra("month");
         year = intent.getStringExtra("year");
+        firebaseUser = intent.getParcelableExtra("user");
         monthDayTV.setText(month + " " + day + " |");
 
         dayStatuses = new ArrayList<>();
 
         FirebaseUser firebaseUser = getIntent().getParcelableExtra("user");
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("user/"+firebaseUser.getUid()+"/daystatus/");
+        myRef = database.getReference("users/"+firebaseUser.getUid()+"/daystatuses");
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Attempting to read value: " + dataSnapshot);
                 if (dataSnapshot.exists()){
                     for (DataSnapshot ds : dataSnapshot.getChildren()){
                         DayStatus dayStatus = ds.getValue(DayStatus.class);
                         dayStatuses.add(dayStatus);
+                        if (dayStatus.getDay()==Integer.parseInt(day) && dayStatus.getMonth()==monthFromString(month)){
+                            ArrayList<Event> events1 = dayStatus.getEvents();
+                            Log.d(TAG, "Attempting to add events to view");
+                            for (int j=0; j<events1.size(); j++){
+                                Log.d(TAG, "Attempting to add event");
+                                Event event = events1.get(j);
+                                int hour = Integer.parseInt(event.getTime().substring(0, 2));
+                                eventList.get(hour).add(event);
+                                hourAdapter.notifyItemChanged(hour);
+                            }
+                        }
                     }
+                    Log.d(TAG, "Successfully read value: " + dayStatuses);
                 }
             }
 
@@ -85,43 +119,139 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                 Log.d(TAG, "Failed to read value: " + databaseError);
             }
         });
-        index = -1;
-        for (int i=0; i<dayStatuses.size(); i++){
-            DayStatus ds = dayStatuses.get(i);
-            if (ds.getYear()==Integer.parseInt(year) && ds.getMonth()==monthFromString(month) && ds.getDay()==Integer.parseInt(day)){
-                dayStatus = dayStatuses.get(i);
-                index = i;
-            }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (exitBtn==v){
+            finish();
+            Intent intent = new Intent(DayInCalender.this, MainMenuActivity.class);
+            startActivity(intent);
         }
 
-        initDayInCalender();
-
-        statuses = new boolean[25];
-        arrayListEvents = new ArrayList<ArrayList<Event>>(25);
-
-        for (int i = 0; i<25; i++){
-            boolean status=false;
-            statuses[i] = status;
-
-            if (dayStatus==null) {
-                ArrayList<Event> eventNodes = new ArrayList<Event>();
-                arrayListEvents.add(eventNodes);
-            }
+        if (recyclerView==v){
+            createEventDialog();
         }
-        if (dayStatus!=null){
-            arrayListEvents = dayStatus.getEvents();
+
+        if (saveBtn==v) {
+            title = titleET.getText().toString();
+            description = descriptionET.getText().toString();
+            if (switchCompat.isChecked()){
+                time = "all-day";
+                if (allDayEvent==null) {
+                    allDayTV.setText(title);
+                    allDayEvent = new Event(title, description, time);
+                    events.add(allDayEvent);
+                    d.dismiss();
+                }
+                else{
+                    errorMsg.setText("You have already added an event for all day");
+                    errorMsg.setVisibility(View.VISIBLE);
+                }
+            }
+            else {
+                if (tp.getHour()<10) {
+                    if (tp.getMinute()<10) {
+                        time = "0" + tp.getHour() + ":0" + tp.getMinute();
+                    }
+                    else {
+                        time = "0" + tp.getHour() + ":" + tp.getMinute();
+                    }
+                }
+                else {
+                    if (tp.getMinute()<10) {
+                        time = tp.getHour() + ":0" + tp.getMinute();
+                    }
+                    else {
+                        time = tp.getHour() + ":" + tp.getMinute();
+                    }
+                }
+                int hour = Integer.parseInt(time.substring(0, 2));
+                eventList.get(hour).add(new Event(title, description, time));
+                hourAdapter.notifyItemInserted(hour);
+                events.add(new Event(title, description, time));
+                updateCalender();
+                d.dismiss();
+            }
         }
     }
 
-    public boolean checkDayStatus(ArrayList<ArrayList<Event>> a){
-        if (!a.isEmpty()) {
-            for (int i = 0; i < a.size(); i++) {
-                if (a.get(i).size() > 0) {
-                    return true;
+    public void updateCalender(){
+        Date date = new Date(Integer.parseInt(day), month, Integer.parseInt(year));
+        DatabaseReference dateRef= FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/datewithevent");
+        dateRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "ValueEventListener initialized");
+                if (dataSnapshot.exists()){
+                    boolean alreadyExist=false;
+                    List<Date> dates = new ArrayList<>();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        Date date = ds.getValue(Date.class);
+                        dates.add(date);
+                    }
+                    for (int i=0; i<dates.size(); i++){
+                        if (dates.get(i).getDay()==date.getDay() && dates.get(i).getMonth()==date.getMonth() && dates.get(i).getYear()==date.getYear()){
+                            alreadyExist=true;
+                        }
+                    }
+                    if (!alreadyExist){
+                        dates.add(date);
+                        dateRef.setValue(dates);
+                    }
+                }
+                else {
+                    ArrayList<Date> dates = new ArrayList<>();
+                    dates.add(date);
+                    dateRef.setValue(dates);
+                    Log.d(TAG, "Date added" + date);
                 }
             }
-        }
-        return false;
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Failed to read value: " + databaseError);
+            }
+        });
+
+        DatabaseReference eventRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatuses");
+        List<DayStatus> dayStatusList = new ArrayList<>();
+        DayStatus ds = new DayStatus(date.getDay(), monthFromString(date.getMonth()), date.getYear(), events);
+        eventRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        DayStatus dayStatus = ds.getValue(DayStatus.class);
+                        dayStatusList.add(dayStatus);
+                    }
+                    for (int i=0; i<dayStatusList.size(); i++){
+                        if (dayStatusList.get(i).getDay()==ds.getDay() && dayStatusList.get(i).getMonth()==ds.getMonth() && dayStatusList.get(i).getYear()==ds.getYear()){
+                            ArrayList<Event> eventList = dayStatusList.get(i).getEvents();
+                            for (int j=0; 0<events.size(); j++){
+                                eventList.add(events.get(j));
+                            }
+                            DayStatus newDayStatus = new DayStatus(ds.getDay(), ds.getMonth(), ds.getYear(), eventList);
+                            dayStatusList.set(i, newDayStatus );
+                            eventRef.setValue(dayStatusList);
+                        }
+                        else {
+                            dayStatusList.add(ds);
+                            eventRef.setValue(dayStatusList);
+                        }
+                    }
+                }
+                else {
+                    dayStatusList.add(ds);
+                    eventRef.setValue(dayStatusList);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Failed to read value: " + databaseError);
+            }
+        });
     }
 
     public int monthFromString(String month){
@@ -164,302 +294,6 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         return 0;
     }
 
-    @Override
-    public void onClick(View v) {
-        if (exitBtn==v){
-            finish();
-            Intent intent = new Intent(DayInCalender.this, MainMenuActivity.class);
-            startActivity(intent);
-        }
-
-        if (saveBtn==v) {
-            title = this.titleET.getText().toString();
-            description = this.descriptionET.getText().toString();
-            int hour;
-            if (!switchCompat.isChecked()){
-                if (tp.getHour() < 10){
-                  time = "0" + tp.getHour() + ":" + tp.getMinute();
-                }
-                else {
-                    time = tp.getHour() + ":" + tp.getMinute();
-                }
-                hour = Integer.parseInt(time.substring(0, 2));
-                if (checkTitleValidity(arrayListEvents.get(hour),title,time)){
-                    Event event = new Event(title, description, time);
-
-                    for (int i = 0; i < 25; i++){
-                        if (i==hour){
-                            int id;
-                            if (i<10){
-                                id = getId("tv0"+String.valueOf(i), R.id.class);
-                            }
-                            else {
-                                id = getId("tv"+String.valueOf(i), R.id.class);
-                            }
-                            TextView tv = (TextView) findViewById(id);
-                            if (arrayListEvents.get(i).size()>0){
-                                tv.setText(tv.getText().toString()+" | "+title);
-                            }
-                            else {
-                                tv.setText(title);
-                            }
-                            statuses[i]=true;
-                            arrayListEvents.get(i).add(event);
-
-                            FirebaseUser firebaseUser = getIntent().getParcelableExtra("user");
-                            DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatus/");
-                            DayStatus dayStatus1 = new DayStatus(Integer.parseInt(day), monthFromString(month), Integer.parseInt(year), true, arrayListEvents);
-                            if (index ==-1) {
-                                myRef.child(String.valueOf(dayStatuses.size())).setValue(dayStatus1);
-                            }
-                            else {
-                                myRef.child(String.valueOf(index)).setValue(dayStatus1);
-                            }
-                        }
-                    }
-                    d.dismiss();
-                }
-                else {
-                    errorMsg.setVisibility(View.VISIBLE);
-                }
-            }
-            else {
-                time = "all-day";
-                allDayTV.setText(title);
-                allDayTV.setVisibility(View.VISIBLE);
-                Event event = new Event(title, description, time);
-                arrayListEvents.get(24).add(event);
-                d.dismiss();
-            }
-        }
-
-        if (tv00 == v){
-            ArrayList<Event> array = arrayListEvents.get(0);
-            if (statuses[0]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv01 == v){
-            ArrayList<Event> array = arrayListEvents.get(1);
-            if (statuses[1]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv02 == v){
-            ArrayList<Event> array = arrayListEvents.get(2);
-            if (statuses[2]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv03 == v){
-            ArrayList<Event> array = arrayListEvents.get(3);
-            if (statuses[3]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv04 == v){
-            ArrayList<Event> array = arrayListEvents.get(4);
-            if (statuses[4]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv05 == v){
-            ArrayList<Event> array = arrayListEvents.get(5);
-            if (statuses[5]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv06 == v){
-            ArrayList<Event> array = arrayListEvents.get(6);
-            if (statuses[6]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv07 == v){
-            ArrayList<Event> array = arrayListEvents.get(7);
-            if (statuses[7]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv08 == v){
-            ArrayList<Event> array = arrayListEvents.get(8);
-            if (statuses[8]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv09 == v){
-            ArrayList<Event> array = arrayListEvents.get(9);
-            if (statuses[9]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv10 == v){
-            ArrayList<Event> array = arrayListEvents.get(10);
-            if (statuses[10]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv11 == v){
-            ArrayList<Event> array = arrayListEvents.get(11);
-            if (statuses[11]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv12 == v){
-            ArrayList<Event> array = arrayListEvents.get(12);
-            if (statuses[12]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv13 == v){
-            ArrayList<Event> array = arrayListEvents.get(13);
-            if (statuses[13]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv14 == v){
-            ArrayList<Event> array = arrayListEvents.get(14);
-            if (statuses[14]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv15 == v){
-            ArrayList<Event> array = arrayListEvents.get(15);
-            if (statuses[15]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv16 == v){
-            ArrayList<Event> array = arrayListEvents.get(16);
-            if (statuses[16]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv17 == v){
-            ArrayList<Event> array = arrayListEvents.get(17);
-            if (statuses[17]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv18 == v){
-            ArrayList<Event> array = arrayListEvents.get(18);
-            if (statuses[18]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv19 == v){
-            ArrayList<Event> array = arrayListEvents.get(19);
-            if (statuses[19]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv20 == v){
-            ArrayList<Event> array = arrayListEvents.get(20);
-            if (statuses[20]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv21 == v) {
-            ArrayList<Event> array = arrayListEvents.get(21);
-            if (statuses[21]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv22 == v) {
-            ArrayList<Event> array = arrayListEvents.get(22);
-            if (statuses[22]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv23 == v) {
-            ArrayList<Event> array = arrayListEvents.get(23);
-            if (statuses[23]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-        if (tv24 == v){
-            ArrayList<Event> array = arrayListEvents.get(24);
-            if (statuses[24]==false){
-                createEventDialog();
-            }
-            else if (array.size() <= 1){
-                editEventDialog(array.get(0).getTitle(), array.get(0).getDescription(), array.get(0).getTime());
-            }
-        }
-    }
-
     public static int getId(String resourceName, Class<?> c) {
         try {
             Field idField = c.getDeclaredField(resourceName);
@@ -481,7 +315,6 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         return true;
     }
 
-
     public void createEventDialog() {
         d = new Dialog(this);
         d.setContentView(R.layout.event_dialog);
@@ -501,128 +334,6 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
         d.show();
     }
 
-    public void editEventDialog(String title, String description, String time){
-        d = new Dialog(this);
-        d.setContentView(R.layout.event_dialog);
-        d.setTitle("Edit Event");
-        d.setCancelable(true);
-
-        titleET = (EditText) d.findViewById(R.id.titleET);
-        descriptionET = (EditText) d.findViewById(R.id.descriptionET);
-        switchCompat = (SwitchCompat) d.findViewById(R.id.switchCompat);
-        errorMsg = (TextView) d.findViewById(R.id.errorMsg);
-        switchCompat.setOnCheckedChangeListener(this);
-        tp = (TimePicker) d.findViewById(R.id.timePicker);
-        tp.setIs24HourView(true);
-        saveBtn = (Button) d.findViewById(R.id.saveBtn);
-        saveBtn.setOnClickListener(this);
-
-        titleET.setText(title);
-        descriptionET.setText(description);
-        tp.setHour(Integer.valueOf(time.substring(0, 1)));
-        tp.setMinute(Integer.valueOf(time.substring(3, 4)));
-        if (time.equals("all-day")){
-            switchCompat.setChecked(true);
-        }
-        else {
-            switchCompat.setChecked(false);
-        }
-
-        d.show();
-    }
-
-
-
-    public void initDayInCalender(){
-        tv00 = (TextView) findViewById(R.id.tv00);
-        tv01 = (TextView) findViewById(R.id.tv01);
-        tv02 = (TextView) findViewById(R.id.tv02);
-        tv03 = (TextView) findViewById(R.id.tv03);
-        tv04 = (TextView) findViewById(R.id.tv04);
-        tv05 = (TextView) findViewById(R.id.tv05);
-        tv06 = (TextView) findViewById(R.id.tv06);
-        tv07 = (TextView) findViewById(R.id.tv07);
-        tv08 = (TextView) findViewById(R.id.tv08);
-        tv09 = (TextView) findViewById(R.id.tv09);
-        tv10 = (TextView) findViewById(R.id.tv10);
-        tv11 = (TextView) findViewById(R.id.tv11);
-        tv12 = (TextView) findViewById(R.id.tv12);
-        tv13 = (TextView) findViewById(R.id.tv13);
-        tv14 = (TextView) findViewById(R.id.tv14);
-        tv15 = (TextView) findViewById(R.id.tv15);
-        tv16 = (TextView) findViewById(R.id.tv16);
-        tv17 = (TextView) findViewById(R.id.tv17);
-        tv18 = (TextView) findViewById(R.id.tv18);
-        tv19 = (TextView) findViewById(R.id.tv19);
-        tv20 = (TextView) findViewById(R.id.tv20);
-        tv21 = (TextView) findViewById(R.id.tv21);
-        tv22 = (TextView) findViewById(R.id.tv22);
-        tv23 = (TextView) findViewById(R.id.tv23);
-        tv24 = (TextView) findViewById(R.id.tv24);
-
-        tv00.setOnClickListener(this);
-        tv01.setOnClickListener(this);
-        tv02.setOnClickListener(this);
-        tv03.setOnClickListener(this);
-        tv04.setOnClickListener(this);
-        tv05.setOnClickListener(this);
-        tv06.setOnClickListener(this);
-        tv07.setOnClickListener(this);
-        tv08.setOnClickListener(this);
-        tv09.setOnClickListener(this);
-        tv10.setOnClickListener(this);
-        tv11.setOnClickListener(this);
-        tv12.setOnClickListener(this);
-        tv13.setOnClickListener(this);
-        tv14.setOnClickListener(this);
-        tv15.setOnClickListener(this);
-        tv16.setOnClickListener(this);
-        tv17.setOnClickListener(this);
-        tv18.setOnClickListener(this);
-        tv19.setOnClickListener(this);
-        tv20.setOnClickListener(this);
-        tv21.setOnClickListener(this);
-        tv22.setOnClickListener(this);
-        tv23.setOnClickListener(this);
-        tv24.setOnClickListener(this);
-
-        Log.d(TAG, "Initialized day in calender");
-        if (dayStatus!=null){
-        Log.d(TAG, "dayStatus: " + dayStatus);
-            ArrayList<ArrayList<Event>> events = dayStatus.getEvents();
-            for (int i=0; i<25; i++){
-                if (!events.get(i).isEmpty()) {
-                    for (int j = 0; j < events.get(i).size(); j++) {
-                        Event event = events.get(i).get(j);
-                        if (event.getTime().equals("all-day")) {
-                            if (allDayTV.getText().toString().equals("")) {
-                                allDayTV.setText(event.getTitle());
-                            }
-                            else {
-                                allDayTV.setText(allDayTV.getText().toString() + " | " + event.getTitle());
-                            }
-                        }
-                        else {
-                            int id;
-                            if (i < 10) {
-                                id = getId("tv0" + String.valueOf(i), R.id.class);
-                            }
-                            else {
-                                id = getId("tv" + String.valueOf(i), R.id.class);
-                            }
-                            TextView tv = (TextView) findViewById(id);
-                            if (tv.getText().toString().equals("")){
-                                tv.setText(event.getTitle());
-                            }
-                            else {
-                                tv.setText(tv.getText().toString() + " | " + event.getTitle());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

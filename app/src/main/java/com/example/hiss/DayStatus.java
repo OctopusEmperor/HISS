@@ -5,14 +5,12 @@ import java.util.ArrayList;
 public class DayStatus {
 
     int day, month, year;
-    boolean status;
-    ArrayList<ArrayList<Event>> events;
+    ArrayList<Event> events;
 
-    public DayStatus(int day, int month, int year, boolean status, ArrayList<ArrayList<Event>> events) {
+    public DayStatus(int day, int month, int year, ArrayList<Event> events) {
         this.day = day;
         this.month = month;
         this.year = year;
-        this.status = status;
         this.events = events;
     }
 
@@ -20,7 +18,6 @@ public class DayStatus {
         this.day = 0;
         this.month = 0;
         this.year = 0;
-        this.status = false;
         this.events = new ArrayList<>();
     }
 
@@ -48,18 +45,10 @@ public class DayStatus {
         this.year = year;
     }
 
-    public boolean getStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public ArrayList<ArrayList<Event>> getEvents() {
+    public ArrayList<Event> getEvents() {
         return events;
     }
-    public void setEvents(ArrayList<ArrayList<Event>> events) {
+    public void setEvents(ArrayList<Event> events) {
         this.events = events;
     }
 }

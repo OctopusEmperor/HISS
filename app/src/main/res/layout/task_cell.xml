@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/citrus"
-    android:orientation="horizontal">
+    android:layout_marginTop="10sp">
 
     <LinearLayout
+        android:id="@+id/lLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:paddingRight="5sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintLeft_toRightOf="parent"
+        app:layout_constraintHorizontal_bias="0">
 
         <TextView
             android:id="@+id/title"
@@ -20,8 +28,7 @@
             android:textStyle="bold"
             android:textColor="@color/lightBlack"
             android:layout_marginLeft="10sp"
-            android:layout_marginTop="10sp"
-            android:layout_marginRight="10sp"/>
+            android:layout_marginTop="10sp" />
 
         <TextView
             android:id="@+id/description"
@@ -31,8 +38,7 @@
             android:textSize="16sp"
             android:textColor="@color/lightBlack"
             android:layout_marginLeft="10sp"
-            android:layout_marginTop="10sp"
-            android:layout_marginRight="10sp"/>
+            android:layout_marginTop="10sp" />
 
         <TextView
             android:id="@+id/urgency"
@@ -42,8 +48,7 @@
             android:textSize="14sp"
             android:textColor="@color/lightBlack"
             android:layout_marginLeft="10sp"
-            android:layout_marginTop="10sp"
-            android:layout_marginRight="10sp"/>
+            android:layout_marginTop="10sp" />
 
         <CheckBox
             android:id="@+id/status"
@@ -53,19 +58,24 @@
             android:minHeight="48dp"
             android:text="Incomplete"
             android:textColor="@color/lightBlack"
-            android:layout_marginBottom="10sp"
-            android:layout_marginRight="10sp"/>
+            android:layout_marginBottom="10sp" />
 
     </LinearLayout>
 
     <Button
+        android:id="@+id/editTaskBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10sp"
-        android:layout_marginRight="10sp"
-        android:text="Edit"
         android:background="@drawable/round_pink_button"
         android:backgroundTint="@color/pinkhue"
-        android:id="@+id/editTaskBtn"/>
+        android:gravity="center"
+        android:text="Edit"
+        android:layout_marginRight="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.922"
+        app:layout_constraintLeft_toRightOf="@id/lLayout"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.495" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
