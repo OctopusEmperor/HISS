@@ -3,6 +3,7 @@ package com.example.hiss;
 import static android.content.ContentValues.TAG;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -48,23 +49,32 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     LinearLayout taskLL, topicLL;
     ImageButton notesBtn;
     List<Date> dates;
-    TextView[] tasks;
+    TextView[] tasks, topics;
+    SharedPreferences sp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
 
+        sp = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
         welcometv = (TextView) findViewById(R.id.welcometv);
         signOutButton = (Button) findViewById(R.id.signOutBtn);
         signOutButton.setOnClickListener(this);
         notesBtn = findViewById(R.id.notesBtn);
         notesBtn.setOnClickListener(this);
         tasks = new TextView[5];
+        topics = new TextView[5];
         List<Task> taskList = new ArrayList<>();
+        List<String> topicList = new ArrayList<>();
         for (int i=0; i<5; i++){
             int id = getId("task"+(i+1), R.id.class);
             tasks[i] = findViewById(id);
+            int id2 = getId("topic"+(i+1), R.id.class);
+            topics[i] = findViewById(id2);
+            tasks[i].setText(sp.getString("task"+(i+1), ""));
+            topics[i].setText(sp.getString("topic"+(i+1), ""));
         }
 
         mAuth = FirebaseAuth.getInstance();
@@ -79,8 +89,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         selectedDate = LocalDate.now();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        myRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference taskRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
+        taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 Log.d(TAG, "Attempting to read value: " + dataSnapshot);
@@ -90,9 +100,11 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                         taskList.add(task);
                     }
                     Log.d(TAG, "Successfully read value: " + taskList);
-                    for (int i=0; i<taskList.size();i++){
+                    for (int i=0; i<taskList.size() && i<5;i++){
                         tasks[i].setText(taskList.get(i).getTitle());
+                        editor.putString("task"+(i+1), tasks[i].getText().toString());
                     }
+                    editor.apply();
                 }
             }
 
@@ -101,6 +113,37 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                 Log.d(TAG, "Failed to read value: " + databaseError);
             }
         });
+
+        DatabaseReference topicRef = database.getReference("users/"+firebaseUser.getUid()+"/subjects");
+        topicRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Attempting to read value: " + dataSnapshot);
+                if (dataSnapshot.exists()){
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        String subject = ds.getValue(String.class);
+                        topicList.add(subject);
+                    }
+                    Log.d(TAG, "Successfully read value: " + topicList);
+                    for (int i=0; i<topicList.size() && i<5;i++){
+                        topics[i].setText(topicList.get(i));
+                        editor.putString("topic"+(i+1), topics[i].getText().toString());
+                    }
+                    editor.apply();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Failed to read value: " + databaseError);
+            }
+        });
+
+
+        for (int i=0; i<5; i++){
+            editor.putString("task"+(i+1), tasks[i].getText().toString());
+            editor.putString("topic"+(i+1), topics[i].getText().toString());
+        }
 
         taskLL = findViewById(R.id.taskLL);
         taskLL.setOnClickListener(this);

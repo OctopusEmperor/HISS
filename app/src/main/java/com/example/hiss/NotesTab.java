@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -76,7 +77,7 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
                 noteAdapter = new NoteAdapter(getApplicationContext(), noteList, uriList, new NoteAdapter.ItemClickListener() {
                     @Override
                     public void onItemClick(int position) {
-
+                        Toast.makeText(getApplicationContext(), "Item " + noteList.get(position) + " clicked", Toast.LENGTH_SHORT).show();
                     }
                 });
         notesRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -167,28 +168,6 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
-//    public void uploadFile(Bitmap bitmap, String title) {
-//        StorageReference imageRef = fileRef.child("/" + title + ".png");
-//        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//        byte[] data = baos.toByteArray();
-//
-//        UploadTask uploadTask = imageRef.putBytes(data);
-//        uploadTask.addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception exception) {
-//                Log.d(TAG, "Failed to upload image");
-//            }
-//        }).addOnSuccessListener(taskSnapshot -> {
-//            imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
-//                uriList.add(uri.toString());
-//                Log.d(TAG, "Successfully uploaded image: " + uri);
-//                if (uriList.size()==noteList.size())
-//                    noteAdapter.notifyItemInserted(uriList.size()-1);
-//            });
-//        });
-//    }
-
     public void uploadFile(Bitmap bitmap, String title) {
         StorageReference imageRef = fileRef.child("/" + title + ".png");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -202,6 +181,23 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
                     Log.d(TAG, "Successfully uploaded image: " + uri);
                     if (uriList.size() == noteList.size()) {
                         noteAdapter.notifyItemInserted(uriList.size() - 1); // Notify adapter of new item
+                    }
+                }));
+    }
+
+    public void editFile(Bitmap bitmap, String title, int position) {
+        StorageReference imageRef = fileRef.child("/" + title + ".png");
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+        byte[] data = baos.toByteArray();
+
+        UploadTask uploadTask = imageRef.putBytes(data);
+        uploadTask.addOnFailureListener(exception -> Log.d(TAG, "Failed to upload image"))
+                .addOnSuccessListener(taskSnapshot -> imageRef.getDownloadUrl().addOnSuccessListener(uri -> {
+                    uriList.set(position, (uri.toString()));
+                    Log.d(TAG, "Successfully uploaded image: " + uri);
+                    if (uriList.size() == noteList.size()) {
+                        noteAdapter.notifyItemInserted(position); // Notify adapter of new item
                     }
                 }));
     }
@@ -220,6 +216,40 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
                     }
                     notes.add(newNote);
                     noteRef.setValue(notes);
+                }
+                else {
+                    if (newNote != null && !noteList.contains(newNote)) {
+                        noteRef.setValue(noteList);
+                        if (uriList.size()==noteList.size())
+                            noteAdapter.notifyItemInserted(uriList.size()-1);
+                        Log.d("onDataChange", "Added new note");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("onCancelled", "Failed to get reference" + noteRef);
+            }
+        });
+    }
+
+    public void editNotes(Note newNote, int position){
+        DatabaseReference noteRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/notes");
+        noteRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    List<Note> notes = new ArrayList<>();
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        Note note = ds.getValue(Note.class);
+                        notes.add(note);
+                    }
+                    notes.set(position, newNote);
+                    noteRef.setValue(notes);
+                    if (uriList.size()==noteList.size()){
+                        noteAdapter.notifyItemChanged(position);
+                    }
                 }
                 else {
                     if (newNote != null && !noteList.contains(newNote)) {
