@@ -20,11 +20,6 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     private List<Task> taskList;
     private ItemClickListener mItemListener;
     private Context context;
-    Dialog d;
-    EditText titleET,descriptionET;
-    RadioButton rdUrgent, rdNotUrgent, rdImportant, rdNotImportant;
-    RadioGroup radioGroup;
-    Button saveTaskBtn;
 
     public TaskAdapter(List<Task> taskList, ItemClickListener itemClickListener) {
         this.taskList = taskList;
@@ -63,6 +58,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     }
 
     public void editTask(TaskViewHolder holder){
+        Dialog d;
+        EditText titleET,descriptionET;
+        RadioButton rdUrgent, rdNotUrgent, rdImportant, rdNotImportant;
+        RadioGroup radioGroup;
+        Button saveTaskBtn;
+
         d = new Dialog(holder.editBtn.getContext());
         d.setContentView(R.layout.task_dialog);
         d.setTitle("Edit Event");
@@ -79,19 +80,19 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         titleET.setText(holder.titleTv.getText());
         descriptionET.setText(holder.descriptionTv.getText());
-        radioGroup.check(setUrgency(holder.urgency.getText().toString()));
+        radioGroup.check(setUrgency(holder.urgency.getText().toString(), rdUrgent, rdNotUrgent, rdImportant, rdNotImportant));
 
         saveTaskBtn.setOnClickListener(view -> {
             holder.titleTv.setText(titleET.getText());
             holder.descriptionTv.setText(descriptionET.getText());
-            holder.urgency.setText(getUrgency(radioGroup.getCheckedRadioButtonId()));
+            holder.urgency.setText(getUrgency(radioGroup.getCheckedRadioButtonId(), rdUrgent, rdNotUrgent, rdImportant, rdNotImportant));
             d.dismiss();
         });
 
         d.show();
     }
 
-    public String getUrgency(int id){
+    public String getUrgency(int id, RadioButton rdUrgent, RadioButton rdNotUrgent, RadioButton rdImportant, RadioButton rdNotImportant){
         if (id==rdNotUrgent.getId()){
             return rdNotUrgent.getText().toString();
         }
@@ -104,7 +105,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         return rdUrgent.getText().toString();
     }
 
-    public int setUrgency(String urgency){
+    public int setUrgency(String urgency, RadioButton rdUrgent, RadioButton rdNotUrgent, RadioButton rdImportant, RadioButton rdNotImportant){
         if (urgency.equals(rdUrgent.getText().toString())){
             return rdUrgent.getId();
         }

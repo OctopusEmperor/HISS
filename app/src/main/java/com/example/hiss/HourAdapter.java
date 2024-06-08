@@ -31,15 +31,8 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
     private ArrayList<ArrayList<Event>> eventList;
     private HourAdapter.ItemClickListener mItemListener;
     Context context;
-    Dialog d;
-    EditText titleET, descriptionET;
-    SwitchCompat switchCompat;
-    TimePicker tp;
-    Button saveBtn, e1, e2, e3;
-    TextView errorMsg;
     private String day,month,year;
-    private  FirebaseUser firebaseUser;
-    int datePosition, eventPosition;
+    private FirebaseUser firebaseUser;
 
 
 
@@ -138,7 +131,6 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
                                             dayStatusList.get(eventIndex).getEvents().remove(index);
                                         }
                                     });
-                                    eventPosition=i;
                                     break;
                                 }
                             }
@@ -228,6 +220,12 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
 
     public void editEventDialog (String title, String description, String time,int position,
     int i, HourViewHolder holder){
+        Dialog d;
+        EditText titleET, descriptionET;
+        SwitchCompat switchCompat;
+        TimePicker tp;
+        Button saveBtn;
+
         d = new Dialog(context);
         d.setContentView(R.layout.event_dialog);
         d.setTitle("Edit Event");
@@ -236,7 +234,6 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
         titleET = (EditText) d.findViewById(R.id.titleET);
         descriptionET = (EditText) d.findViewById(R.id.descriptionET);
         switchCompat = (SwitchCompat) d.findViewById(R.id.switchCompat);
-        errorMsg = (TextView) d.findViewById(R.id.errorMsg);
         tp = (TimePicker) d.findViewById(R.id.timePicker);
         tp.setIs24HourView(true);
         tp.setVisibility(View.GONE);

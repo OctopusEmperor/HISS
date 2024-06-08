@@ -17,7 +17,6 @@ public class CalendarAdapter extends RecyclerView.Adapter<CalendarViewHolder>  {
     private final ArrayList<String> daysOfMonth;
     private final OnItemListener onItemListener;
     private ArrayList<Boolean> statuses;
-    DatabaseReference myRef;
 
     public CalendarAdapter(ArrayList<String> daysOfMonth, ArrayList<Boolean> statuses,OnItemListener onItemListener)
     {

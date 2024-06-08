@@ -2,8 +2,8 @@ package com.example.hiss;
 
 public class Date {
 
-    int day, year;
-    String month;
+    private int day, year;
+    private String month;
 
     public Date(int day, String month, int year) {
         this.day = day;

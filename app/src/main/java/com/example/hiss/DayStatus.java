@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class DayStatus {
 
-    int day, month, year;
-    ArrayList<Event> events;
+    private int day, month, year;
+    private ArrayList<Event> events;
 
     public DayStatus(int day, int month, int year, ArrayList<Event> events) {
         this.day = day;

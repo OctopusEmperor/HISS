@@ -75,12 +75,6 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
     @Override
     public int getItemCount() {return notesList.size();}
 
-    public Bitmap base64ToBitmap(String imageString) {
-        byte[] imageBytes = Base64.decode(imageString, Base64.DEFAULT);
-        Bitmap decodedImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-        return decodedImage;
-    }
-
     public interface ItemClickListener {
         void onItemClick(int position);
     }
