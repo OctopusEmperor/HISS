@@ -100,6 +100,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                         dayStatuses.add(dayStatus);
                         if (dayStatus.getDay()==Integer.parseInt(day) && dayStatus.getMonth()==monthFromString(month)){
                             ArrayList<Event> events1 = dayStatus.getEvents();
+                            pendingTasksTV.setText(String.valueOf(events1.size()));
                             Log.d(TAG, "Attempting to add events to view");
                             for (int j=0; j<events1.size(); j++){
                                 Log.d(TAG, "Attempting to add event");
@@ -142,6 +143,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                     allDayTV.setText(title);
                     allDayEvent = new Event(title, description, time);
                     events.add(allDayEvent);
+                    pendingTasksTV.setText(String.valueOf(events.size()));
                     d.dismiss();
                 }
                 else{
@@ -170,6 +172,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                 eventList.get(hour).add(new Event(title, description, time));
                 hourAdapter.notifyItemInserted(hour);
                 events.add(new Event(title, description, time));
+                pendingTasksTV.setText(String.valueOf(events.size()));
                 updateCalender();
                 d.dismiss();
             }
@@ -228,7 +231,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                     for (int i=0; i<dayStatusList.size(); i++){
                         if (dayStatusList.get(i).getDay()==ds.getDay() && dayStatusList.get(i).getMonth()==ds.getMonth() && dayStatusList.get(i).getYear()==ds.getYear()){
                             ArrayList<Event> eventList = dayStatusList.get(i).getEvents();
-                            for (int j=0; 0<events.size(); j++){
+                            for (int j=0; j<events.size(); j++){
                                 eventList.add(events.get(j));
                             }
                             DayStatus newDayStatus = new DayStatus(ds.getDay(), ds.getMonth(), ds.getYear(), eventList);

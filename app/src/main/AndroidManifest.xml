@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -26,6 +28,9 @@
             android:exported="false"/>
         <activity
             android:name=".TopicSubjectsTab"
+            android:exported="false"/>
+        <activity
+            android:name=".NotesTab"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"

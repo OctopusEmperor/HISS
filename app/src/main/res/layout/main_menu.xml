@@ -129,117 +129,154 @@
 
 
 
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20sp"
         android:orientation="horizontal">
 
-        <TextClock
+        <TextView
+            android:id="@+id/tasksTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:format24Hour="hh:mm" />
-    </LinearLayout>
+            android:text="Tasks:"
+            android:textSize="20sp"
+            android:textColor="@color/gray"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/topicsTV"
+            app:layout_constraintLeft_toLeftOf="parent"/>
 
-    <LinearLayout
+        <TextView
+            android:id="@+id/topicsTV"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/tasksTV"
+            android:text="Topics:"
+            android:textSize="20sp"
+            android:textColor="@color/gray" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/taskLL"
+            android:layout_width="150sp"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toLeftOf="@id/topicLL"
+            app:layout_constraintLeft_toLeftOf="parent"
             android:orientation="vertical"
-            android:layout_marginLeft="20sp"
-            android:layout_marginTop="20sp"
-            android:id="@+id/taskLL">
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/citrus"
+            android:paddingLeft="5sp">
 
             <TextView
+                android:id="@+id/task1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task 1"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/task2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task 2"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/task3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task 3"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/task4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task 4"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/task5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Task 5"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
         </LinearLayout>
 
         <LinearLayout
-            android:layout_width="wrap_content"
+            android:id="@+id/topicLL"
+            android:layout_width="150sp"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/taskLL"
             android:orientation="vertical"
-            android:layout_marginLeft="20sp"
-            android:layout_marginTop="20sp"
-            android:id="@+id/topicLL">
+            android:background="@drawable/round_button"
+            android:backgroundTint="@color/citrus">
 
             <TextView
+                android:id="@+id/topic1"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Urgent Topic 1"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/topic2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Urgent Topic 2"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/topic3"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Urgent Topic 3"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/topic4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Topic 1"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
             <TextView
+                android:id="@+id/topic5"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Topic 2"
+                android:text=""
                 android:textColor="@color/gray"
                 android:textSize="20sp"/>
 
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageButton
-        android:id="@+id/notesBtm"
+        android:id="@+id/notesBtn"
         android:layout_width="179dp"
         android:layout_height="81dp"
         android:layout_gravity="center"
@@ -247,9 +284,9 @@
         android:contentDescription="notes"
         android:background="@drawable/notesbtn" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="40sp"
+        android:layout_height="match_parent"
         android:orientation="horizontal"
         android:layout_gravity="bottom|right"
         android:layout_marginTop="10sp">
@@ -259,9 +296,9 @@
             android:layout_width="match_parent"
             android:layout_height="40sp"
             android:layout_gravity="center"
-            android:text="Hi Name"
-            android:textSize="25sp"
-            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="Hello Name"
+            android:textSize="20sp"
             android:textColor="#78685c"
             android:gravity="center"/>
 
@@ -269,12 +306,14 @@
             android:id="@+id/signOutBtn"
             android:layout_width="wrap_content"
             android:layout_height="48sp"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             android:backgroundTint="#e6ccb2"
             android:text="Sign out"
             android:textColor="@color/mocha"
             android:layout_marginRight="10sp" />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>
 

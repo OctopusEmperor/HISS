@@ -38,8 +38,11 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-storage")
     implementation("com.google.firebase:firebase-database")
     implementation("com.google.android.gms:play-services-auth:21.2.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation("androidx.activity:activity:1.9.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -47,4 +50,5 @@ dependencies {
     implementation ("com.google.android.libraries.identity.googleid:googleid:1.1.0")
     implementation ("androidx.recyclerview:recyclerview:1.3.2")
     implementation ("com.google.code.gson:gson:2.11.0")
+    implementation ("com.squareup.picasso:picasso:2.71828")
 }

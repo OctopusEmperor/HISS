@@ -41,7 +41,7 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
     EditText titleET,descriptionET;
     RadioButton rdUrgent, rdNotUrgent, rdImportant, rdNotImportant;
     RadioGroup radioGroup;
-    TextView dateTV;
+    TextView dateTV, pendingTasksTV;
     ImageButton exitBtn;
     FirebaseUser firebaseUser;
     DatabaseReference myRef;
@@ -130,7 +130,6 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
-                    boolean alreadyExist=false;
                     List<Task> tasks = new ArrayList<>();
                     for (DataSnapshot ds : dataSnapshot.getChildren()){
                         Task task = ds.getValue(Task.class);

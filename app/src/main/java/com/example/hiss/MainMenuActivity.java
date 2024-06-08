@@ -26,6 +26,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -47,6 +48,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     LinearLayout taskLL, topicLL;
     ImageButton notesBtn;
     List<Date> dates;
+    TextView[] tasks;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,19 +58,49 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         welcometv = (TextView) findViewById(R.id.welcometv);
         signOutButton = (Button) findViewById(R.id.signOutBtn);
         signOutButton.setOnClickListener(this);
-        notesBtn = findViewById(R.id.notesBtm);
+        notesBtn = findViewById(R.id.notesBtn);
         notesBtn.setOnClickListener(this);
+        tasks = new TextView[5];
+        List<Task> taskList = new ArrayList<>();
+        for (int i=0; i<5; i++){
+            int id = getId("task"+(i+1), R.id.class);
+            tasks[i] = findViewById(id);
+        }
 
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null) {
-            welcometv.setText("Welcome " + firebaseUser.getDisplayName());
+            welcometv.setText("Hello " + firebaseUser.getDisplayName());
         }
 
         dates = new ArrayList<>();
 
         initWidgets();
         selectedDate = LocalDate.now();
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        myRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                Log.d(TAG, "Attempting to read value: " + dataSnapshot);
+                if (dataSnapshot.exists()){
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        Task task = ds.getValue(Task.class);
+                        taskList.add(task);
+                    }
+                    Log.d(TAG, "Successfully read value: " + taskList);
+                    for (int i=0; i<taskList.size();i++){
+                        tasks[i].setText(taskList.get(i).getTitle());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Failed to read value: " + databaseError);
+            }
+        });
 
         taskLL = findViewById(R.id.taskLL);
         taskLL.setOnClickListener(this);
@@ -90,6 +122,12 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
         if (topicLL == v) {
             Intent intent = new Intent(MainMenuActivity.this, TopicSubjectsTab.class);
+            intent.putExtra("user", firebaseUser);
+            startActivity(intent);
+        }
+
+        if (notesBtn == v) {
+            Intent intent = new Intent(MainMenuActivity.this, NotesTab.class);
             intent.putExtra("user", firebaseUser);
             startActivity(intent);
         }
@@ -208,6 +246,16 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     public String yearOfSelectedDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
         return date.format(formatter);
+    }
+
+    public static int getId(String resourceName, Class<?> c) {
+        try {
+            Field idField = c.getDeclaredField(resourceName);
+            return idField.getInt(idField);
+        } catch (Exception e) {
+            throw new RuntimeException("No resource ID found for: "
+                    + resourceName + " / " + c, e);
+        }
     }
 
 
