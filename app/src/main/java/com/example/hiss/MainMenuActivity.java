@@ -2,9 +2,14 @@ package com.example.hiss;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,7 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener, CalendarAdapter.OnItemListener {
+public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener, CalendarAdapter.OnItemListener, SensorEventListener {
 
     TextView welcometv;
     Button signOutButton;
@@ -51,6 +56,11 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     List<Date> dates;
     TextView[] tasks, topics;
     SharedPreferences sp;
+    SensorManager sm;
+    Sensor mAccelerometer;
+    float deltax=0,deltay=0,deltaz=0;
+    boolean initialized=false;
+    private final float NOISE = (float) 2.0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +86,9 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             tasks[i].setText(sp.getString("task"+(i+1), ""));
             topics[i].setText(sp.getString("topic"+(i+1), ""));
         }
+        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sm.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
@@ -150,6 +163,40 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         topicLL = findViewById(R.id.topicLL);
         topicLL.setOnClickListener(this);
     }
+
+    protected void onResume() {
+        super.onResume();
+        sm.registerListener(this, sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
+    }
+    protected void onPause() {
+        super.onPause();
+        sm.unregisterListener(this);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent sensorEvent) {
+
+        Sensor mySensor = sensorEvent.sensor;
+
+        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            deltax = sensorEvent.values[0];
+            deltay = sensorEvent.values[1];
+            deltaz = sensorEvent.values[2];
+            if (deltay > NOISE){
+                Intent intent = new Intent(MainMenuActivity.this, NotesTab.class);
+                intent.putExtra("user", firebaseUser);
+                startActivity(intent);
+            }
+            Log.d("sh", "x=" + deltax + ",y= " + deltay + " z= " + deltaz);
+        }
+
+    }
+    //phase 6
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
 
     @Override
     public void onClick(View v) {
