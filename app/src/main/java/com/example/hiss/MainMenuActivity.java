@@ -68,6 +68,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.main_menu);
 
         sp = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+
         SharedPreferences.Editor editor = sp.edit();
         welcometv = (TextView) findViewById(R.id.welcometv);
         signOutButton = (Button) findViewById(R.id.signOutBtn);
@@ -228,6 +229,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             SharedPreferences.Editor editor = sp.edit();
 
             DatabaseReference taskRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
+            taskList = new ArrayList<>();
             taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -271,6 +273,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
 
             SharedPreferences.Editor editor = sp.edit();
             DatabaseReference topicRef = database.getReference("users/"+firebaseUser.getUid()+"/subjects");
+            topicList = new ArrayList<>();
             topicRef.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -293,6 +296,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                             topics[i].setText("");
                             editor.putString("topic"+(i+1), topics[i].getText().toString());
                         }
+                        editor.apply();
                     }
                 }
 
