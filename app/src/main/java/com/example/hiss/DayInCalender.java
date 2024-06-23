@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -98,6 +99,11 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                     for (DataSnapshot ds : dataSnapshot.getChildren()){
                         DayStatus dayStatus = ds.getValue(DayStatus.class);
                         dayStatuses.add(dayStatus);
+                    }
+                    Log.d(TAG, "Successfully read value: " + dayStatuses);
+
+                    for (int i=0; i<dayStatuses.size(); i++){
+                        DayStatus dayStatus = dayStatuses.get(i);
                         if (dayStatus.getDay()==Integer.parseInt(day) && dayStatus.getMonth()==monthFromString(month)){
                             ArrayList<Event> events1 = dayStatus.getEvents();
                             pendingTasksTV.setText(String.valueOf(events1.size()));
@@ -111,7 +117,6 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                             }
                         }
                     }
-                    Log.d(TAG, "Successfully read value: " + dayStatuses);
                 }
             }
 
@@ -173,13 +178,13 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                 hourAdapter.notifyItemInserted(hour);
                 events.add(new Event(title, description, time));
                 pendingTasksTV.setText(String.valueOf(events.size()));
-                updateCalender();
+                updateCalender(time);
                 d.dismiss();
             }
         }
     }
 
-    public void updateCalender(){
+    public void updateCalender(String time){
         Date date = new Date(Integer.parseInt(day), month, Integer.parseInt(year));
         DatabaseReference dateRef= FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/datewithevent");
         dateRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -231,8 +236,18 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                     for (int i=0; i<dayStatusList.size(); i++){
                         if (dayStatusList.get(i).getDay()==ds.getDay() && dayStatusList.get(i).getMonth()==ds.getMonth() && dayStatusList.get(i).getYear()==ds.getYear()){
                             ArrayList<Event> eventList = dayStatusList.get(i).getEvents();
+                            int count = 0;
                             for (int j=0; j<events.size(); j++){
-                                eventList.add(events.get(j));
+                                if (time.equals(events.get(j).getTime())){
+                                    if (count==0){
+                                        eventList.add(events.get(j));
+                                        count++;
+                                    }
+                                    else {
+                                        events.remove(events.size()-1);
+                                        Toast.makeText(getApplicationContext(), "You have already added an event for this time", Toast.LENGTH_LONG).show();
+                                    }
+                                }
                             }
                             DayStatus newDayStatus = new DayStatus(ds.getDay(), ds.getMonth(), ds.getYear(), eventList);
                             dayStatusList.set(i, newDayStatus );
