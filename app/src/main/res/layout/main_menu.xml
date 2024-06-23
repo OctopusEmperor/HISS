@@ -223,13 +223,15 @@
             android:id="@+id/topicLL"
             android:layout_width="150sp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/taskLL"
-            android:orientation="vertical"
             android:background="@drawable/round_button"
-            android:backgroundTint="@color/citrus">
+            android:backgroundTint="@color/citrus"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/taskLL"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            android:paddingLeft="5sp">
 
             <TextView
                 android:id="@+id/topic1"
@@ -237,7 +239,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/topic2"
@@ -245,7 +247,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/topic3"
@@ -253,7 +255,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/topic4"
@@ -261,7 +263,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/topic5"
@@ -269,7 +271,7 @@
                 android:layout_height="wrap_content"
                 android:text=""
                 android:textColor="@color/gray"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
         </LinearLayout>
 

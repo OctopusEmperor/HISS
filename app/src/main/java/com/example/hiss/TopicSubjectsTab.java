@@ -3,6 +3,7 @@ package com.example.hiss;
 import static android.content.ContentValues.TAG;
 
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -36,11 +37,16 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
     Button saveBtn, addSubjectsBtn;
     FirebaseUser firebaseUser;
     DatabaseReference myRef;
+    SharedPreferences sp;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.topic_subjects);
+
+        sp = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        editor = sp.edit();
 
         exitBtb = findViewById(R.id.exitBtn);
         exitBtb.setOnClickListener(this);
@@ -51,7 +57,7 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         firebaseUser = getIntent().getParcelableExtra("user");
 
         subjectList = new ArrayList<>();
-        subjectAdapter = new SubjectAdapter(subjectList, firebaseUser, new SubjectAdapter.ItemClickListener() {
+        subjectAdapter = new SubjectAdapter(getApplicationContext(), subjectList, firebaseUser, new SubjectAdapter.ItemClickListener() {
             @Override
             public void onItemClick(int position) {
                 editSubjectDialog(subjectList.get(position), position);
@@ -96,6 +102,10 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
             String title = titleET.getText().toString();
             subjectList.add(title);
             subjectAdapter.notifyItemInserted(subjectList.size());
+            for (int i = 0; i < subjectList.size() && i<5; i++){
+                editor.putString("topic" + (i+1), subjectList.get(i));
+            }
+            editor.apply();
             updateTDL(title);
             d.dismiss();
         }

@@ -5,7 +5,6 @@ import static android.content.ContentValues.TAG;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -48,7 +47,6 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     private LocalDate selectedDate;
     private FirebaseUser firebaseUser;
     FirebaseAuth mAuth;
-    Drawable dayWithEvent;
     FirebaseDatabase database;
     DatabaseReference myRef;
     LinearLayout taskLL, topicLL;
@@ -61,6 +59,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     float deltax=0,deltay=0,deltaz=0;
     boolean initialized=false;
     private final float NOISE = (float) 2.0;
+    List<Task> taskList;
+    List<String> topicList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,8 +76,8 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         notesBtn.setOnClickListener(this);
         tasks = new TextView[5];
         topics = new TextView[5];
-        List<Task> taskList = new ArrayList<>();
-        List<String> topicList = new ArrayList<>();
+        taskList = new ArrayList<>();
+        topicList = new ArrayList<>();
         for (int i=0; i<5; i++){
             int id = getId("task"+(i+1), R.id.class);
             tasks[i] = findViewById(id);
@@ -119,6 +119,14 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                     }
                     editor.apply();
                 }
+                else {
+                    for (int i=0; i<5; i++){
+                        taskList.add(new Task("", "", "", false));
+                        tasks[i].setText("");
+                        editor.putString("task"+(i+1), tasks[i].getText().toString());
+                    }
+                    editor.apply();
+                }
             }
 
             @Override
@@ -140,6 +148,14 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
                     Log.d(TAG, "Successfully read value: " + topicList);
                     for (int i=0; i<topicList.size() && i<5;i++){
                         topics[i].setText(topicList.get(i));
+                        editor.putString("topic"+(i+1), topics[i].getText().toString());
+                    }
+                    editor.apply();
+                }
+                else {
+                    for (int i=0; i<5; i++){
+                        topicList.add("");
+                        topics[i].setText("");
                         editor.putString("topic"+(i+1), topics[i].getText().toString());
                     }
                     editor.apply();
@@ -208,12 +224,87 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             Intent intent = new Intent(MainMenuActivity.this, TDL.class);
             intent.putExtra("user", firebaseUser);
             startActivity(intent);
+
+            SharedPreferences.Editor editor = sp.edit();
+
+            DatabaseReference taskRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
+            taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "Attempting to read value: " + dataSnapshot);
+                    if (dataSnapshot.exists()){
+                        for (DataSnapshot ds : dataSnapshot.getChildren()){
+                            Task task = ds.getValue(Task.class);
+                            taskList.add(task);
+                        }
+                        Log.d(TAG, "Successfully read value: " + taskList);
+                        for (int i=0; i<taskList.size() && i<5;i++){
+                            tasks[i].setText(taskList.get(i).getTitle());
+                            editor.putString("task"+(i+1), tasks[i].getText().toString());
+                        }
+                        editor.apply();
+                    }
+                    else {
+                        for (int i=0; i<5; i++){
+                            taskList.add(new Task("", "", "", false));
+                            tasks[i].setText("");
+                            editor.putString("task"+(i+1), tasks[i].getText().toString());
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d(TAG, "Failed to read value: " + databaseError);
+                }
+            });
+
+            for (int i=0; i<5; i++){
+                editor.putString("task"+(i+1), tasks[i].getText().toString());
+            }
         }
 
         if (topicLL == v) {
             Intent intent = new Intent(MainMenuActivity.this, TopicSubjectsTab.class);
             intent.putExtra("user", firebaseUser);
             startActivity(intent);
+
+            SharedPreferences.Editor editor = sp.edit();
+            DatabaseReference topicRef = database.getReference("users/"+firebaseUser.getUid()+"/subjects");
+            topicRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    Log.d(TAG, "Attempting to read value: " + dataSnapshot);
+                    if (dataSnapshot.exists()){
+                        for (DataSnapshot ds : dataSnapshot.getChildren()){
+                            String subject = ds.getValue(String.class);
+                            topicList.add(subject);
+                        }
+                        Log.d(TAG, "Successfully read value: " + topicList);
+                        for (int i=0; i<topicList.size() && i<5;i++){
+                            topics[i].setText(topicList.get(i));
+                            editor.putString("topic"+(i+1), topics[i].getText().toString());
+                        }
+                        editor.apply();
+                    }
+                    else {
+                        for (int i=0; i<5; i++){
+                            topicList.add("");
+                            topics[i].setText("");
+                            editor.putString("topic"+(i+1), topics[i].getText().toString());
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.d(TAG, "Failed to read value: " + databaseError);
+                }
+            });
+
+            for (int i=0; i<5; i++){
+                editor.putString("topic"+(i+1), topics[i].getText().toString());
+            }
         }
 
         if (notesBtn == v) {

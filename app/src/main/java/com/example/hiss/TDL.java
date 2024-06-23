@@ -3,7 +3,7 @@ package com.example.hiss;
 import static android.content.ContentValues.TAG;
 
 import android.app.Dialog;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -45,11 +45,16 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
     ImageButton exitBtn;
     FirebaseUser firebaseUser;
     DatabaseReference myRef;
+    SharedPreferences sp;
+    SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tdl_layout);
+
+        sp = getSharedPreferences("myPrefs", MODE_PRIVATE);
+        editor = sp.edit();
 
         tdlRecyclerView = findViewById(R.id.tdlRecyclerView);
         tdlRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -63,7 +68,7 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         dateTV.setText(LocalDate.now().toString());
 
         taskList = new ArrayList<>();
-        taskAdapter = new TaskAdapter(taskList, new TaskAdapter.ItemClickListener() {
+        taskAdapter = new TaskAdapter(getApplicationContext(), taskList, firebaseUser, new TaskAdapter.ItemClickListener() {
             @Override
             public void onItemClick(Task task) {
                 int position = taskList.indexOf(task);
@@ -72,7 +77,23 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
                 delRef.removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
+                        if (position<5){
+                            editor.putString("task" + position+1, "");
+                            editor.apply();
+                        }
                         taskList.remove(position);
+
+                        ArrayList<Integer> indexWithEvents = new ArrayList<>();
+                        for (int i = 0; i < taskList.size(); i++){
+                            if (taskList.get(i) != null){
+                                indexWithEvents.add(i);
+                            }
+                        }
+
+                        for (int i = 0; i < taskList.size(); i++) {
+                            taskList.set(i, taskList.get(indexWithEvents.get(i)));
+                        }
+                        delRef.setValue(taskList);
                         taskAdapter.notifyItemRemoved(position);
                     }
                 });
@@ -113,14 +134,16 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         if (saveTaskBtn==v){
             taskList.add(new Task(titleET.getText().toString(), descriptionET.getText().toString(), getUrgency(radioGroup.getCheckedRadioButtonId()), false));
             taskAdapter.notifyItemInserted(taskList.size()-1);
+            for (int i = 0; i < taskList.size() && i<5; i++){
+                editor.putString("task" + (i+1), taskList.get(i).getTitle());
+            }
+            editor.apply();
             updateTDL(new Task(titleET.getText().toString(), descriptionET.getText().toString(), getUrgency(radioGroup.getCheckedRadioButtonId()), false));
             d.dismiss();
         }
 
         if (exitBtn==v){
             finish();
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
         }
     }
 
