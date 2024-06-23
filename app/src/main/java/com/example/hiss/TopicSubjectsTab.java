@@ -26,6 +26,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity class for displaying and managing a list of subjects.
+ */
 public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView subjectRecyclerView;
@@ -40,6 +43,15 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
     SharedPreferences sp;
     SharedPreferences.Editor editor;
 
+    /**
+     * Called when the activity is first created. Initializes views,
+     Firebase, and sets up the RecyclerView.
+     *
+     * @param savedInstanceState If the activity is being re-initialized
+    after previously being shut down, this Bundle contains the data it most
+    recently supplied in {@link #onSaveInstanceState}. <b><i>Note: Otherwise it
+    is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +100,11 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    /**
+     * Handles click events for various UI components.
+     *
+     * @param v The view that was clicked.
+     */
     @Override
     public void onClick(View v) {
         if (exitBtb==v){
@@ -111,6 +128,12 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /**
+     * Updates the subject list in the Firebase Realtime Database with a
+     new subject.
+     *
+     * @param newSubject The new subject to add.
+     */
     public void updateTDL(String newSubject){
         DatabaseReference subjectRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/subjects");
         subjectRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -137,6 +160,9 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    /**
+     * Creates a dialog for adding a new subject.
+     */
     public void createSubjectDialog(){
         d = new Dialog(this);
         d.setContentView(R.layout.subject_dialog);
@@ -150,6 +176,12 @@ public class TopicSubjectsTab extends AppCompatActivity implements View.OnClickL
         d.show();
     }
 
+    /**
+     * Creates a dialog for editing an existing subject.
+     *
+     * @param title The current title of the subject.
+     * @param index The index of the subject in the list.
+     */
     public void editSubjectDialog(String title, int index){
         d = new Dialog(this);
         d.setContentView(R.layout.subject_dialog);

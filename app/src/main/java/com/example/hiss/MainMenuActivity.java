@@ -40,6 +40,7 @@ import java.util.List;
 
 public class MainMenuActivity extends AppCompatActivity implements View.OnClickListener, CalendarAdapter.OnItemListener, SensorEventListener {
 
+    // UI elements
     TextView welcometv;
     Button signOutButton;
     private TextView monthYearText;
@@ -67,9 +68,11 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
 
+        // Initialize SharedPreference
         sp = getSharedPreferences("MyPrefs", MODE_PRIVATE);
-
         SharedPreferences.Editor editor = sp.edit();
+
+        // Initialize UI elements
         welcometv = (TextView) findViewById(R.id.welcometv);
         signOutButton = (Button) findViewById(R.id.signOutBtn);
         signOutButton.setOnClickListener(this);
@@ -87,10 +90,13 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             tasks[i].setText(sp.getString("task"+(i+1), ""));
             topics[i].setText(sp.getString("topic"+(i+1), ""));
         }
+
+        // Initialize sensor manager for accelerometer
         sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sm.registerListener(this, mAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
 
+        // Initialize Firebase authentication
         mAuth = FirebaseAuth.getInstance();
         firebaseUser = mAuth.getCurrentUser();
         if (firebaseUser != null) {
@@ -100,8 +106,10 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         dates = new ArrayList<>();
 
         initWidgets();
+        // Set selected date to current date
         selectedDate = LocalDate.now();
 
+        // Initialize database reference
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference taskRef = database.getReference("users/"+firebaseUser.getUid()+"/tasks");
         taskRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -318,6 +326,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    // Sign out function
     void signOut() {
         mAuth.signOut();
         startActivity(new Intent(MainMenuActivity.this, MainActivity.class));
@@ -378,6 +387,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         return statuses;
     }
 
+    // Set the month view in the calendar
     private void setMonthView() {
         monthYearText.setText(monthYearFromDate(selectedDate));
         ArrayList<String> daysInMonth = daysInMonthArray(selectedDate);
@@ -389,6 +399,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         calendarRecyclerView.setLayoutManager(layoutManager);
     }
 
+    // Get array of days in the selected month
     private ArrayList<String> daysInMonthArray(LocalDate date) {
         ArrayList<String> daysInMonthArray = new ArrayList<>();
         YearMonth yearMonth = YearMonth.from(date);
@@ -408,31 +419,37 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
         return daysInMonthArray;
     }
 
+    // Format the date to "MMMM yyyy"
     private String monthYearFromDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM yyyy");
         return date.format(formatter);
     }
 
+    // Action for previous month button
     public void previousMonthAction(View view) {
         selectedDate = selectedDate.minusMonths(1);
         setMonthView();
     }
 
+    // Action for next month button
     public void nextMonthAction(View view) {
         selectedDate = selectedDate.plusMonths(1);
         setMonthView();
     }
 
+    // Format the date to "MMMM"
     public String monthOfSelectedDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM");
         return date.format(formatter);
     }
 
+    // Format the date to "yyyy"
     public String yearOfSelectedDate(LocalDate date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy");
         return date.format(formatter);
     }
 
+    // Get resource ID by name
     public static int getId(String resourceName, Class<?> c) {
         try {
             Field idField = c.getDeclaredField(resourceName);

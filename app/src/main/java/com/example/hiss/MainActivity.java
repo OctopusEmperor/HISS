@@ -40,11 +40,17 @@ import java.util.logging.Logger;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    // UI element for sign-in button
     ImageButton signInButton;
+    // Tag for logging
     String TAG;
+    // Credential manager for handling credentials
     CredentialManager credentialManager;
+    // Request for getting credentials
     GetCredentialRequest request;
+    // Google ID token
     String googleIdToken;
+    // Firebase authentication instance
     private FirebaseAuth mAuth;
 
 
@@ -53,11 +59,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Initialize Firebase authentication
         mAuth = FirebaseAuth.getInstance();
 
+        // Initialize credential manager
         initCredentialManager();
 
-        signInButton = (ImageButton) findViewById(R.id.signInButton);
+        // Initialize sign-in button and set click listener
+        signInButton = findViewById(R.id.signInButton);
         signInButton.setOnClickListener(this);
     }
 
@@ -83,6 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return Base64.encodeToString(digest, Base64.URL_SAFE);
     }
 
+    // Initialize the credential manager
     private void initCredentialManager(){
         credentialManager = CredentialManager.create(getApplicationContext());
 
@@ -101,6 +111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    // Handle success of credential retrieval
     public void handleSuccess(GetCredentialResponse result){
         Credential credential = result.getCredential();
         if (credential instanceof CustomCredential) {
@@ -108,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     GoogleIdTokenCredential googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.getData());
                     googleIdToken = googleIdTokenCredential.getIdToken();
+                    // Use the Google ID token to authenticate with Firebase
                     AuthCredential authCredential = GoogleAuthProvider.getCredential(googleIdToken, null);
                     mAuth.signInWithCredential(authCredential)
                             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -118,6 +130,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             })
                             .addOnFailureListener(this, new OnFailureListener() {
                                 @Override
+                                // If sign in fails, display a message to the user.
                                 public void onFailure(@NonNull Exception e) {
                                     Log.i(TAG, "Unexpected type of credential");
                                 }
@@ -134,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // Handle failure of credential retrieval
     private void handleFailure(@NonNull GetCredentialException e) {
         Logger logger = Logger.getLogger(Thread.currentThread().getStackTrace()[1].getClassName());
         logger.log(Level.SEVERE, "Error getting credential: " + e);
@@ -143,6 +157,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         createCredential();
     }
 
+    // Create credentials with Google
     private void createCredential() {
         Log.d("/////", "Preparing credentials with Google");
     }
@@ -157,6 +172,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // Sign-in function to get credentials
     void signIn(){
 
         CancellationSignal cancellationSignal = new CancellationSignal();
@@ -182,6 +198,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 });
     }
 
+    // Navigate to main menu activity
     void navigateToMainMenu(){
         Intent intent1 = new Intent(MainActivity.this, MainMenuActivity.class);
         startActivity(intent1);

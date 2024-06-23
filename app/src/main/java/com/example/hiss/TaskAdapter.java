@@ -27,6 +27,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter class for displaying tasks in a RecyclerView.
+ */
 public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
     private List<Task> taskList;
@@ -35,6 +38,13 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     private FirebaseUser firebaseUser;
     int position;
 
+    /**
+     * Constructs a TaskAdapter with the specified list of tasks and item
+     click listener.
+     *
+     * @param taskList The list of tasks.
+     * @param itemClickListener The listener for item click events.
+     */
     public TaskAdapter(Context context, List<Task> taskList, FirebaseUser firebaseUser,ItemClickListener itemClickListener) {
         this.context = context;
         this.taskList = taskList;
@@ -42,6 +52,14 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         this.firebaseUser = firebaseUser;
     }
 
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type to represent an item.
+     *
+     * @param parent The ViewGroup into which the new View will be added after it is bound to an adapter position.
+     * @param i The view type of the new View.
+     * @return A new TaskViewHolder that holds a View of the given view
+    type.
+     */
     @NonNull
     @Override
     public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
@@ -49,6 +67,17 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         return new TaskViewHolder(view);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified
+     position.
+     * This method updates the contents of the ViewHolder to reflect the
+     item at the given position.
+     *
+     * @param holder The ViewHolder which should be updated to represent
+    the contents of the item at the given position in the data set.
+     * @param position The position of the item within the adapter's data
+    set.
+     */
     @Override
     public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
         Task task = taskList.get(position);
@@ -78,6 +107,11 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         });
     }
 
+    /**
+     * Edits the selected task in the dialog.
+     *
+     * @param holder The ViewHolder of the task being edited.
+     */
     public void editTask(TaskViewHolder holder){
         Dialog d;
         EditText titleET,descriptionET;
@@ -159,6 +193,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         });
     }
 
+    /**
+     * Returns the urgency text based on the given radio button ID.
+     *
+     * @param id The ID of the selected radio button.
+     * @return The urgency text.
+     */
     public String getUrgency(int id, RadioButton rdUrgent, RadioButton rdNotUrgent, RadioButton rdImportant, RadioButton rdNotImportant){
         if (id==rdNotUrgent.getId()){
             return rdNotUrgent.getText().toString();
@@ -172,6 +212,12 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         return rdUrgent.getText().toString();
     }
 
+    /**
+     * Returns the radio button ID based on the given urgency text.
+     *
+     * @param urgency The urgency text.
+     * @return The radio button ID.
+     */
     public int setUrgency(String urgency, RadioButton rdUrgent, RadioButton rdNotUrgent, RadioButton rdImportant, RadioButton rdNotImportant){
         if (urgency.equals(rdUrgent.getText().toString())){
             return rdUrgent.getId();
@@ -184,12 +230,26 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         }
         return rdNotUrgent.getId();
     }
+
+    /**
+     * Returns the total number of items in the data set held by the adapter.
+     *
+     * @return The total number of items in this adapter.
+     */
     @Override
     public int getItemCount() {
         return taskList.size();
     }
 
+    /**
+     * Interface for handling item click events.
+     */
     public interface ItemClickListener{
+        /**
+         * Called when an item is clicked.
+         *
+         * @param task The task that was clicked.
+         */
         void onItemClick(Task task);
     }
 }

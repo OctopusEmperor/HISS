@@ -31,6 +31,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * TDL (To-Do List) activity that displays and manages a list of tasks.
+ */
 public class TDL extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView tdlRecyclerView;
@@ -48,6 +51,15 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
     SharedPreferences sp;
     SharedPreferences.Editor editor;
 
+    /**
+     * Called when the activity is first created. Initializes views,
+     Firebase, and sets up the RecyclerView.
+     *
+     * @param savedInstanceState If the activity is being re-initialized
+    after previously being shut down, this Bundle contains the data it most
+    recently supplied in {@link #onSaveInstanceState}. <b><i>Note: Otherwise it
+    is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,6 +137,11 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         });
     }
 
+    /**
+     * Handles click events for various UI components.
+     *
+     * @param v The view that was clicked.
+     */
     @Override
     public void onClick(View v) {
         if (v==addTaskBtn){
@@ -147,6 +164,11 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         }
     }
 
+    /**
+     * Updates the to-do list in the Firebase Realtime Database with a new task.
+     *
+     * @param newTask The new task to add.
+     */
     public void updateTDL(Task newTask){
         DatabaseReference tdlRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/tasks");
         tdlRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -173,6 +195,9 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         });
     }
 
+    /**
+     * Creates a dialog for adding a new task.
+     */
     public void createTaskDialog() {
         d = new Dialog(this);
         d.setContentView(R.layout.task_dialog);
@@ -192,6 +217,12 @@ public class TDL extends AppCompatActivity implements View.OnClickListener {
         d.show();
     }
 
+    /**
+     * Returns the urgency level based on the given radio button ID.
+     *
+     * @param id The ID of the selected radio button.
+     * @return The urgency level as a string.
+     */
     public String getUrgency(int id){
         if (id==rdNotUrgent.getId()){
             return rdNotUrgent.getText().toString();

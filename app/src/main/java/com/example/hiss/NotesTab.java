@@ -41,6 +41,10 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * NotesTab handles the UI and logic for managing notes, including adding,
+ editing, and displaying notes.
+ */
 public class NotesTab extends AppCompatActivity implements View.OnClickListener {
 
     Button addNoteBtn, imgBtn, saveBtn;
@@ -59,6 +63,15 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
     final long ONE_MEGABYTE = 1024 * 1024;
 
 
+    /**
+     * Called when the activity is first created. Initializes views,
+     Firebase, and sets up the RecyclerView and image picker.
+     *
+     * @param savedInstanceState If the activity is being re-initialized
+    after previously being shut down, this Bundle contains the data it most
+    recently supplied in {@link #onSaveInstanceState}. <b><i>Note: Otherwise it
+    is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -132,6 +145,12 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
+
+    /**
+     * Handles click events for various UI components.
+     *
+     * @param v The view that was clicked.
+     */
     @Override
     public void onClick(View v) {
         if (exitBtn == v) {
@@ -161,6 +180,12 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
         }
     }
 
+    /**
+     * Converts a Bitmap image to a Base64 encoded string.
+     *
+     * @param img The Bitmap image to convert.
+     * @return The Base64 encoded string representing the image.
+     */
     public String bitmapToBase64(Bitmap img){
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         img.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
@@ -168,6 +193,12 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
         return Base64.encodeToString(byteArray, Base64.DEFAULT);
     }
 
+    /**
+     * Uploads an image file to Firebase Storage and updates the URI list.
+     *
+     * @param bitmap The Bitmap image to upload.
+     * @param title The title of the note, used as the image file name.
+     */
     public void uploadFile(Bitmap bitmap, String title) {
         StorageReference imageRef = fileRef.child("/" + title + ".png");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -185,6 +216,14 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
                 }));
     }
 
+    /**
+     * Edits an existing image file in Firebase Storage and updates the URI
+     list.
+     *
+     * @param bitmap The Bitmap image to upload.
+     * @param title The title of the note, used as the image file name.
+     * @param position The position of the note in the list.
+     */
     public void editFile(Bitmap bitmap, String title, int position) {
         StorageReference imageRef = fileRef.child("/" + title + ".png");
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -203,6 +242,11 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
     }
 
 
+    /**
+     * Updates the notes in the Firebase Realtime Database with a new note.
+     *
+     * @param newNote The new note to add.
+     */
     public void updateNotes(Note newNote){
         DatabaseReference noteRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/notes");
         noteRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -234,6 +278,13 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
+    /**
+     * Edits an existing note in the Firebase Realtime Database and updates
+     the note list.
+     *
+     * @param newNote The new note data.
+     * @param position The position of the note in the list.
+     */
     public void editNotes(Note newNote, int position){
         DatabaseReference noteRef = FirebaseDatabase.getInstance().getReference("users/" + firebaseUser.getUid() + "/notes");
         noteRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -268,6 +319,9 @@ public class NotesTab extends AppCompatActivity implements View.OnClickListener 
         });
     }
 
+    /**
+     * Creates a dialog for adding or editing a note.
+     */
     public void createNoteDialog(){
         d = new Dialog(this);
         d.setContentView(R.layout.note_dialog);

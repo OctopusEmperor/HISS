@@ -20,6 +20,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Adapter class for displaying subjects in a RecyclerView.
+ */
 public class SubjectAdapter extends RecyclerView.Adapter<SubjectViewHolder> {
 
     private List<String> subjectList;
@@ -27,12 +30,31 @@ public class SubjectAdapter extends RecyclerView.Adapter<SubjectViewHolder> {
     private FirebaseUser firebaseUser;
     private Context context;
 
+    /**
+     * Constructs a SubjectAdapter with the specified list of subjects,
+     Firebase user, and item click listener.
+     *
+     * @param subjectList The list of subjects.
+     * @param firebaseUser The current Firebase user.
+     * @param itemClickListener The listener for item click events.
+     */
     public SubjectAdapter(Context context, List<String> subjectList, FirebaseUser firebaseUser, ItemClickListener itemClickListener) {
         this.subjectList = subjectList;
         this.mItemListener = itemClickListener;
         this.firebaseUser = firebaseUser;
         this.context = context;
     }
+
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type to
+     represent an item.
+     *
+     * @param parent The ViewGroup into which the new View will be added
+    after it is bound to an adapter position.
+     * @param i The view type of the new View.
+     * @return A new SubjectViewHolder that holds a View of the given view
+    type.
+     */
     @NonNull
     @Override
     public SubjectViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
@@ -40,6 +62,17 @@ public class SubjectAdapter extends RecyclerView.Adapter<SubjectViewHolder> {
         return new SubjectViewHolder(view);
     }
 
+    /**
+     * Called by RecyclerView to display the data at the specified
+     position.
+     * This method updates the contents of the ViewHolder to reflect the
+     item at the given position.
+     *
+     * @param holder The ViewHolder which should be updated to represent
+    the contents of the item at the given position in the data set.
+     * @param i The position of the item within the adapter's data
+    set.
+     */
     @Override
     public void onBindViewHolder(@NonNull SubjectViewHolder holder, int i) {
         String title = subjectList.get(i);
@@ -88,12 +121,26 @@ public class SubjectAdapter extends RecyclerView.Adapter<SubjectViewHolder> {
         });
     }
 
+    /**
+     * Returns the total number of items in the data set held by the
+     adapter.
+     *
+     * @return The total number of items in this adapter.
+     */
     @Override
     public int getItemCount() {
         return subjectList.size();
     }
 
+    /**
+     * Interface for handling item click events.
+     */
     public interface ItemClickListener{
+        /**
+         * Called when an item is clicked.
+         *
+         * @param position The position of the item clicked.
+         */
         void onItemClick(int position);
     }
 }

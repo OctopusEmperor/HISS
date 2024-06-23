@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DayInCalendar extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+    // UI elements
     ImageButton exitBtn;
     TextView monthDayTV, pendingTasksTV, allDayTV, errorMsg;
     Dialog d;
@@ -40,8 +41,14 @@ public class DayInCalendar extends AppCompatActivity implements View.OnClickList
     SwitchCompat switchCompat;
     TimePicker tp;
     Button saveBtn;
+
+    // Event details
     String title, description, time, day, month, year;
+
+    // Firebase reference
     DatabaseReference myRef;
+
+    // Data structures to hold events and statuses
     List<DayStatus> dayStatuses;
     RecyclerView recyclerView;
     ArrayList<ArrayList<Event>> eventList;
@@ -55,6 +62,7 @@ public class DayInCalendar extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.day_calender);
 
+        // Initialize UI elements
         monthDayTV = (TextView) findViewById(R.id.monthDayTV);
         pendingTasksTV = (TextView) findViewById(R.id.pendingTasksTV);
         allDayTV = (TextView) findViewById(R.id.allDayTV);
@@ -283,6 +291,7 @@ public class DayInCalendar extends AppCompatActivity implements View.OnClickList
         });
     }
 
+    // Function to get month as integer from its name
     public int monthFromString(String month){
         if (month.equals("January")){
             return 1;
@@ -323,6 +332,7 @@ public class DayInCalendar extends AppCompatActivity implements View.OnClickList
         return 0;
     }
 
+    // Function to get resource ID by its name
     public static int getId(String resourceName, Class<?> c) {
         try {
             Field idField = c.getDeclaredField(resourceName);
@@ -333,6 +343,7 @@ public class DayInCalendar extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    // Function to check if an event title is valid
     public boolean checkTitleValidity(ArrayList<Event> array, String title, String time){
         for (int i=0; i<array.size(); i++){
             if (array.get(i).getTitle().equals(title)){
@@ -344,6 +355,7 @@ public class DayInCalendar extends AppCompatActivity implements View.OnClickList
         return true;
     }
 
+    // Function to create a dialog for adding events
     public void createEventDialog() {
         d = new Dialog(this);
         d.setContentView(R.layout.event_dialog);

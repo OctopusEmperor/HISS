@@ -30,14 +30,20 @@ import java.util.List;
 
 public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder> {
 
+    // List of events for each hour
     private ArrayList<ArrayList<Event>> eventList;
+    // Click listener for items
     private HourAdapter.ItemClickListener mItemListener;
+    // Context for the adapter
     Context context;
-    private String day,month,year;
+    // Day, month, and year for the events
+    private String day, month, year;
+    // Firebase user reference
     private FirebaseUser firebaseUser;
 
 
 
+    // Constructor to initialize HourAdapter with necessary data
     public HourAdapter(Context context, ArrayList<ArrayList<Event>> events, String day, String month, String year, FirebaseUser firebaseUser, ItemClickListener itemClickListener) {
         this.eventList = events;
         this.context = context;
@@ -51,12 +57,14 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
     @NonNull
     @Override
     public HourViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int i) {
+        // Inflate the layout for each hour cell
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.time_cell, parent, false);
         return new HourViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull HourViewHolder holder, int position) {
+        // Bind the event data to the ViewHolder for each hour
         ArrayList<Event> events = eventList.get(position);
         String hour;
         if (position < 10) {
@@ -200,6 +208,7 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
 
     @Override
     public int getItemCount() {
+        // Return the number of hours in the list
         return 24;
     }
 
@@ -244,6 +253,7 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
     }
 
     public interface ItemClickListener {
+        // Interface for item click listener
         void onItemClick(int position);
     }
 
@@ -327,10 +337,12 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
 
         public HourViewHolder(@NonNull View itemView) {
             super(itemView);
+            // Initialize buttons for events in the hour
             events = new Button[3];
             events[0] = itemView.findViewById(R.id.event1);
             events[1] = itemView.findViewById(R.id.event2);
             events[2] = itemView.findViewById(R.id.event3);
+            // Initialize TextView for the hour
             timeTV = itemView.findViewById(R.id.timeTV);
         }
     }
