@@ -355,7 +355,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             String message = "Selected Date " + dayText + " " + monthYearFromDate(selectedDate);
             Toast.makeText(this, message, Toast.LENGTH_LONG).show();
 
-            Intent intent = new Intent(MainMenuActivity.this, DayInCalender.class);
+            Intent intent = new Intent(MainMenuActivity.this, DayInCalendar.class);
             intent.putExtra("day", dayText);
             intent.putExtra("month", monthOfSelectedDate(selectedDate));
             intent.putExtra("year", yearOfSelectedDate(selectedDate));

@@ -14,7 +14,7 @@
         android:layout_height="80sp"
         android:layout_gravity="center"
         android:contentDescription="Google Sign In"
-        android:layout_marginTop="350sp"
+        android:layout_marginTop="370sp"
         android:background="@drawable/circulargooglelogo"
         android:id="@+id/signInButton"/>
 

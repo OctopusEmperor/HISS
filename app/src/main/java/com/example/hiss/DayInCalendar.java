@@ -32,7 +32,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DayInCalender extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+public class DayInCalendar extends AppCompatActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     ImageButton exitBtn;
     TextView monthDayTV, pendingTasksTV, allDayTV, errorMsg;
     Dialog d;
@@ -131,7 +131,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         if (exitBtn==v){
             finish();
-            Intent intent = new Intent(DayInCalender.this, MainMenuActivity.class);
+            Intent intent = new Intent(DayInCalendar.this, MainMenuActivity.class);
             startActivity(intent);
         }
 
@@ -173,9 +173,10 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                         time = tp.getHour() + ":" + tp.getMinute();
                     }
                 }
+
                 int hour = Integer.parseInt(time.substring(0, 2));
                 eventList.get(hour).add(new Event(title, description, time));
-                hourAdapter.notifyItemInserted(hour);
+                hourAdapter.notifyItemChanged(hour);
                 events.add(new Event(title, description, time));
                 pendingTasksTV.setText(String.valueOf(events.size()));
                 updateCalender(time);
@@ -186,6 +187,7 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
 
     public void updateCalender(String time){
         Date date = new Date(Integer.parseInt(day), month, Integer.parseInt(year));
+        List<Date> datesCheck = new ArrayList<>();
         DatabaseReference dateRef= FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/datewithevent");
         dateRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -197,20 +199,23 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
                     for (DataSnapshot ds : dataSnapshot.getChildren()){
                         Date date = ds.getValue(Date.class);
                         dates.add(date);
+                        datesCheck.add(date);
                     }
                     for (int i=0; i<dates.size(); i++){
-                        if (dates.get(i).getDay()==date.getDay() && dates.get(i).getMonth()==date.getMonth() && dates.get(i).getYear()==date.getYear()){
+                        if (dates.get(i).getDay()==date.getDay() && dates.get(i).getMonth().equals(date.getMonth()) && dates.get(i).getYear()==date.getYear()){
                             alreadyExist=true;
                         }
                     }
                     if (!alreadyExist){
                         dates.add(date);
+                        datesCheck.add(date);
                         dateRef.setValue(dates);
                     }
                 }
                 else {
                     ArrayList<Date> dates = new ArrayList<>();
                     dates.add(date);
+                    datesCheck.add(date);
                     dateRef.setValue(dates);
                     Log.d(TAG, "Date added" + date);
                 }
@@ -229,29 +234,35 @@ public class DayInCalender extends AppCompatActivity implements View.OnClickList
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
+                    boolean check = true;
                     for (DataSnapshot ds : dataSnapshot.getChildren()){
                         DayStatus dayStatus = ds.getValue(DayStatus.class);
                         dayStatusList.add(dayStatus);
                     }
                     for (int i=0; i<dayStatusList.size(); i++){
                         if (dayStatusList.get(i).getDay()==ds.getDay() && dayStatusList.get(i).getMonth()==ds.getMonth() && dayStatusList.get(i).getYear()==ds.getYear()){
-                            ArrayList<Event> eventList = dayStatusList.get(i).getEvents();
-                            int count = 0;
-                            for (int j=0; j<events.size(); j++){
-                                if (time.equals(events.get(j).getTime())){
-                                    if (count==0){
-                                        eventList.add(events.get(j));
-                                        count++;
+                            ArrayList<Event> eventList1 = dayStatusList.get(i).getEvents();
+                            for (int j=0; j<eventList1.size()-1; j++){
+                                if (time.equals(eventList1.get(j).getTime())){
+                                    check=false;
+                                    events.remove(events.size()-1);
+                                    eventList.get(Integer.parseInt(time.substring(0, 2))).remove(events.size()-1);
+                                    hourAdapter.notifyItemRemoved(Integer.parseInt(time.substring(0, 2)));
+                                    for (int k=0; k<datesCheck.size(); k++){
+                                        if (datesCheck.get(k).getDay()==date.getDay() && datesCheck.get(i).getMonth().equals(date.getMonth()) && datesCheck.get(k).getYear()==date.getYear()){
+                                            if (events.isEmpty()){
+                                                datesCheck.remove(k);
+                                            }
+                                        }
                                     }
-                                    else {
-                                        events.remove(events.size()-1);
-                                        Toast.makeText(getApplicationContext(), "You have already added an event for this time", Toast.LENGTH_LONG).show();
-                                    }
+                                    Toast.makeText(getApplicationContext(), "You have already added an event for this time", Toast.LENGTH_LONG).show();
                                 }
                             }
-                            DayStatus newDayStatus = new DayStatus(ds.getDay(), ds.getMonth(), ds.getYear(), eventList);
-                            dayStatusList.set(i, newDayStatus );
-                            eventRef.setValue(dayStatusList);
+                            if (check){
+                                DayStatus newDayStatus = new DayStatus(ds.getDay(), ds.getMonth(), ds.getYear(), events);
+                                dayStatusList.set(i, newDayStatus);
+                                eventRef.setValue(dayStatusList);
+                            }
                         }
                         else {
                             dayStatusList.add(ds);

@@ -21,7 +21,7 @@
             android:name=".MainMenuActivity"
             android:exported="false" />
         <activity
-            android:name=".DayInCalender"
+            android:name=".DayInCalendar"
             android:exported="false"/>
         <activity
             android:name=".TDL"
@@ -31,9 +31,6 @@
             android:exported="false"/>
         <activity
             android:name=".NotesTab"
-            android:exported="false"/>
-        <activity
-            android:name=".EditNoteActivity"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"

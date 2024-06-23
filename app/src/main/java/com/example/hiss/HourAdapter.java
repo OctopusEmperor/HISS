@@ -1,5 +1,7 @@
 package com.example.hiss;
 
+import static android.content.ContentValues.TAG;
+
 import android.app.Dialog;
 import android.content.Context;
 import android.util.Log;
@@ -75,6 +77,7 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
                 HourAdapter hourAdapter = new HourAdapter(context, eventList, day, month, year, firebaseUser, mItemListener);
                 hourAdapter.notifyItemChanged(position);
                 holder.events[index].setVisibility(View.GONE);
+                int newPosition = position;
 
                 for (int k=0; k<eventList.size(); k++) {
                     if (eventList.get(k).size() == 0) {
@@ -128,7 +131,33 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
                                     eventRef.child("/" + String.valueOf(i) + "/events/" + index).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void unused) {
-                                            dayStatusList.get(eventIndex).getEvents().remove(index);
+                                            ArrayList<Event> events1 =dayStatusList.get(eventIndex).getEvents();
+                                            events1.remove(index);
+                                            for (int i = 0; i < holder.events.length; i++) {
+                                                if (i+1 < holder.events.length) {
+                                                    if (holder.events[i] != null) {
+                                                        holder.events[i] = holder.events[i+1];
+                                                        holder.events[i+1] = null;
+                                                    }
+                                                }
+                                            }
+
+                                            ArrayList<Integer> indexWithEvents = new ArrayList<>();
+                                            for (int i = 0; i < events1.size(); i++){
+                                                if (events1.get(i) != null){
+                                                    indexWithEvents.add(i);
+                                                }
+                                            }
+
+                                            for (int i = 0; i < events1.size(); i++) {
+                                                events1.set(i, events1.get(indexWithEvents.get(i)));
+                                            }
+
+                                            dayStatusList.get(eventIndex).setEvents(events1);
+                                            eventRef.setValue(dayStatusList);
+                                            eventList.set(newPosition, events1);
+                                            HourAdapter hourAdapter = new HourAdapter(context, eventList, day, month, year, firebaseUser, mItemListener);
+                                            hourAdapter.notifyItemChanged(newPosition);
                                         }
                                     });
                                     break;
@@ -218,8 +247,7 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
         void onItemClick(int position);
     }
 
-    public void editEventDialog (String title, String description, String time,int position,
-    int i, HourViewHolder holder){
+    public void editEventDialog (String title, String description, String time,int position, int i, HourViewHolder holder){
         Dialog d;
         EditText titleET, descriptionET;
         SwitchCompat switchCompat;
@@ -236,6 +264,8 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
         switchCompat = (SwitchCompat) d.findViewById(R.id.switchCompat);
         tp = (TimePicker) d.findViewById(R.id.timePicker);
         tp.setIs24HourView(true);
+        tp.setHour(Integer.parseInt(time.substring(0,2)));
+        tp.setMinute(Integer.parseInt(time.substring(3,5)));
         tp.setVisibility(View.GONE);
         switchCompat.setVisibility(View.GONE);
         saveBtn = (Button) d.findViewById(R.id.saveBtn);
@@ -243,6 +273,7 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
             Event event = new Event(titleET.getText().toString(), descriptionET.getText().toString(), tp.getHour() + ":" + tp.getMinute());
             eventList.get(position).set(i, event);
             holder.events[i].setText(event.getTitle());
+            editCalender(new Event(titleET.getText().toString(), descriptionET.getText().toString(), time));
             d.dismiss();
         });
 
@@ -250,6 +281,44 @@ public class HourAdapter extends RecyclerView.Adapter<HourAdapter.HourViewHolder
         descriptionET.setText(description);
 
         d.show();
+    }
+
+    public void editCalender(Event event){
+        DatabaseReference eventRef = FirebaseDatabase.getInstance().getReference("users/"+firebaseUser.getUid()+"/daystatuses");
+        List<DayStatus> dayStatusList = new ArrayList<>();
+        eventRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    DayStatus oldDayStatus;
+                    for (DataSnapshot ds : dataSnapshot.getChildren()){
+                        DayStatus dayStatus = ds.getValue(DayStatus.class);
+                        dayStatusList.add(dayStatus);
+                    }
+                    for (int i=0; i<dayStatusList.size(); i++){
+                        if (dayStatusList.get(i).getDay()==Integer.parseInt(day) && dayStatusList.get(i).getMonth()==monthFromString(month) && dayStatusList.get(i).getYear()==Integer.parseInt(year)){
+                            oldDayStatus = dayStatusList.get(i);
+                            ArrayList<Event> eventList1 = dayStatusList.get(i).getEvents();
+                            for (int j=0; j<eventList1.size(); j++){
+                                if (eventList1.get(j).getTime().equals(event.getTime())){
+                                    eventList1.set(j, event);
+                                    break;
+                                }
+                            }
+                            oldDayStatus.setEvents(eventList1);
+                            dayStatusList.set(i, oldDayStatus);
+                            eventRef.setValue(dayStatusList);
+                            break;
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d(TAG, "Failed to read value: " + databaseError);
+            }
+        });
     }
 
     public class HourViewHolder extends RecyclerView.ViewHolder {
