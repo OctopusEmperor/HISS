@@ -59,7 +59,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
     Sensor mAccelerometer;
     float deltax=0,deltay=0,deltaz=0;
     boolean initialized=false;
-    private final float NOISE = (float) 2.0;
+    private final float NOISE = (float) -2.0;
     List<Task> taskList;
     List<String> topicList;
 
@@ -207,7 +207,7 @@ public class MainMenuActivity extends AppCompatActivity implements View.OnClickL
             deltax = sensorEvent.values[0];
             deltay = sensorEvent.values[1];
             deltaz = sensorEvent.values[2];
-            if (deltay > NOISE){
+            if (deltay < NOISE){
                 Intent intent = new Intent(MainMenuActivity.this, NotesTab.class);
                 intent.putExtra("user", firebaseUser);
                 startActivity(intent);
